@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Configurator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Final Professional CSS Theme --- */
+        :root {
+            --color-primary: #0d6efd;
+            --color-primary-light: #cfe2ff;
+            --color-success: #198754;
+            --color-danger: #dc3545;
+            --color-danger-light: #f8d7da;
+            --color-dark: #212529;
+            --color-body-text: #495057;
+            --color-muted: #6c757d;
+            --color-background: #f8f9fa;
+            --color-surface: #ffffff;
+            --color-border: #dee2e6;
+            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, .15);
+            --border-radius: 0.375rem;
+            --font-family-sans: 'Inter', sans-serif;
+            --transition-fast: all 0.2s ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            background-color: var(--color-background);
+            color: var(--color-body-text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            height: calc(100vh - 4rem);
+        }
+
+        .main-content {
+            background: transparent;
+            padding-right: 1rem;
+            overflow-y: auto;
+        }
+
+        .sidebar {
+            background: transparent;
+            position: sticky;
+            top: 2rem;
+            height: calc(100vh - 4rem);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-header {
+            margin-bottom: 2.5rem;
+            padding: 0;
+            background: none;
+            text-align: left;
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 0.25rem;
+            text-shadow: none;
+        }
+
+        .product-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-muted);
+            opacity: 1;
+        }
+
+        .loading,
+        .error {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.1rem;
+            color: var(--color-muted);
+            background-color: var(--color-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-border);
+        }
+        
+        .error {
+            color: var(--color-danger);
+            background-color: var(--color-danger-light);
+            border-color: var(--color-danger);
+        }
+
+        .option-category {
+            margin-bottom: 2rem;
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: none;
+            border: 1px solid var(--color-border);
+            transition: var(--transition-fast);
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .category-description {
+            color: var(--color-muted);
+            margin-bottom: 1.5rem;
+            font-style: normal;
+        }
+
+        .sub-options {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .sub-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-border);
+            transition: var(--transition-fast);
+            position: relative;
+        }
+
+        .sub-option:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sub-option.selected {
+            border-color: var(--color-primary);
+            background-color: var(--color-primary-light);
+        }
+        
+        .sub-option.out-of-stock {
+            opacity: 0.6;
+            background: #f1f3f5;
+            color: var(--color-muted);
+            cursor: not-allowed;
+        }
+        .sub-option.out-of-stock:hover {
+            border-color: var(--color-border);
+            box-shadow: none;
+        }
+        
+        .sub-option.out-of-stock::after {
+            content: 'Out of Stock';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--color-muted);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .sub-option-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sub-option-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--color-dark);
+        }
+
+        .sub-option-description {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            margin-top: 0.2rem;
+        }
+
+        .sub-option.selected .sub-option-description {
+            color: var(--color-muted);
+        }
+
+        .sub-option-price {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-dark);
+            margin: 0 1.5rem;
+        }
+
+        .sub-option.selected .sub-option-price {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .sub-option-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .inventory-badge {
+            background: #e9ecef;
+            color: var(--color-muted);
+            padding: 0.25rem 0.6rem;
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .inventory-badge.low {
+            background: var(--color-danger-light);
+            color: var(--color-danger);
+        }
+        .inventory-badge.good {
+            background: #d1e7dd;
+            color: var(--color-success);
+        }
+
+        .quantity-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            min-width: 70px;
+            background-color: var(--color-surface);
+        }
+
+        .add-btn, .remove-btn {
+            border: 1px solid;
+            padding: 0.5rem 1.25rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: var(--transition-fast);
+        }
+        
+        .add-btn {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            color: white;
+        }
+        .add-btn:hover {
+            background: #157347;
+            border-color: #146c43;
+        }
+        .add-btn:disabled {
+            background: var(--color-muted);
+            border-color: var(--color-muted);
+            cursor: not-allowed;
+        }
+
+        .remove-btn {
+            background: transparent;
+            border-color: var(--color-danger);
+            color: var(--color-danger);
+        }
+        .remove-btn:hover {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .bucket {
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .bucket-header {
+            background: var(--color-surface);
+            color: var(--color-dark);
+            padding: 1.25rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .bucket-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .bucket-count {
+            font-size: 0.9rem;
+            color: var(--color-muted);
+        }
+
+        .bucket-items {
+            flex: 1;
+            padding: 0.5rem;
+            overflow-y: auto;
+        }
+
+        .bucket-item {
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 0.5rem;
+            border: 1px solid #f1f3f5;
+            transition: var(--transition-fast);
+        }
+
+        .bucket-item-name {
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 0.1rem;
+        }
+
+        .bucket-item-option {
+            color: var(--color-muted);
+            font-size: 0.8rem;
+        }
+
+        .bucket-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+        }
+
+        .bucket-item-quantity {
+            background: #e9ecef;
+            color: var(--color-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+        }
+
+        .bucket-item-price {
+            font-weight: 500;
+            color: var(--color-dark);
+        }
+
+        .bucket-item-remove {
+            background: transparent;
+            color: var(--color-muted);
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition-fast);
+        }
+        .bucket-item-remove:hover {
+            color: var(--color-danger);
+            background-color: var(--color-danger-light);
+        }
+
+        .bucket-footer {
+            background: var(--color-background);
+            padding: 1.25rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            border-top: 1px solid var(--color-border);
+        }
+        
+        .customer-info {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+        .customer-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--color-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 0.25rem var(--color-primary-light);
+        }
+
+        .total-amount {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-muted);
+            margin-bottom: 1rem;
+            text-align: right;
+            line-height: 1;
+        }
+        .total-amount span {
+            display: block;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+
+        .action-buttons { display: grid; }
+
+        .download-btn {
+            width: 100%;
+            border: none;
+            padding: 0.8rem;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--color-dark);
+            color: white;
+            transition: var(--transition-fast);
+        }
+        .download-btn:hover {
+            opacity: 0.85;
+        }
+        
+        .empty-bucket {
+            text-align: center;
+            color: var(--color-muted);
+            font-style: normal;
+            padding: 4rem 1rem;
+        }
+ .currency-selector select {
+            position: fixed;
+            bottom: 1.5rem;
+            background: var(--color-surface);
+            color: var(--color-dark);
+            border: 1px solid var(--color-border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        .admin-link {
+            right: 1.5rem;
+            text-decoration: none;
+            position: absolute;
+             background: var(--color-surface);
+            color: var(--color-dark);
+            border: 1px solid var(--color-border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast);
+            z-index: 1000;
+            font-size: 0.9rem;
+            top: 1rem;
+        }
+        .admin-link:hover, .currency-selector select:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-border);
+            color: var(--color-primary);
+        }
+
+        .currency-selector {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 10.5rem;
+            z-index: 1000;
+        }
+        .currency-selector select {
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            padding-right: 2.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            body { padding: 1rem; }
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .sidebar {
+                position: relative;
+                top: 0;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container { gap: 1.5rem; }
+            .main-content { padding-right: 0; }
+            .product-title { font-size: 2rem; }
+            .admin-link, .currency-selector select {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            .currency-selector {
+                right: 9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="product-header">
+                <div class="product-title">Atlas Configurator</div>
+            </div>
+            <div id="productContent">
+                <div class="loading">Loading configuration options...</div>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="bucket">
+                <div class="bucket-header">
+                    <div class="bucket-title">Your Configuration</div>
+                    <div class="bucket-count">0 items selected</div>
+                </div>
+                <div class="bucket-items" id="bucketItems">
+                    <div class="empty-bucket">No items selected yet.<br>Choose your camera options to get started!</div>
+                </div>
+                <div class="bucket-footer">
+                    <div class="customer-info" id="customerInfo" style="display: none;">
+                        <h4>Customer Information</h4>
+                        <input type="text" class="form-input" id="customerName" placeholder="Your Name (Optional)">
+                        <input type="email" class="form-input" id="customerEmail"
+                            placeholder="Email Address (Optional)">
+                    </div>
+                    <div class="total-amount">Total: <span>$0.00</span></div>
+                    <div class="action-buttons">
+                        <button class="download-btn" onclick="downloadInvoice()">Download Invoice PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="currency-selector">
+        <select id="currencySwitcher" onchange="changeCurrency(this.value)">
+            <option value="USD">USD ($)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="EUR">EUR (€)</option>
+        </select>
+    </div>
+    <a href="admin.html" target="_blank" class="admin-link">Admin Panel</a>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // --- YOUR ORIGINAL, UNTOUCHED JAVASCRIPT ---
+        let bucket = [];
+        let totalAmount = 0;
+        let productData = null;
+        let currentCurrency = 'USD';
+        const currencySymbols = { USD: '$', GBP: '£', EUR: '€' };
+        const API_BASE = 'api.php?endpoint';
+
+        function saveStateToLocalStorage() {
+            localStorage.setItem('splitCameraBucket', JSON.stringify(bucket));
+            localStorage.setItem('splitCameraCurrency', currentCurrency);
+        }
+
+        function loadStateFromLocalStorage() {
+            const savedBucket = localStorage.getItem('splitCameraBucket');
+            const savedCurrency = localStorage.getItem('splitCameraCurrency');
+            if (savedBucket) {
+                bucket = JSON.parse(savedBucket);
+            }
+            if (savedCurrency) {
+                currentCurrency = savedCurrency;
+                document.getElementById('currencySwitcher').value = currentCurrency;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStateFromLocalStorage();
+            loadProduct();
+            updateBucketDisplay();
+        });
+
+        function changeCurrency(newCurrency) {
+            currentCurrency = newCurrency;
+            renderProduct();
+            updateBucketDisplay();
+            saveStateToLocalStorage();
+        }
+
+        async function loadProduct() {
+            try {
+                const response = await fetch(`${API_BASE}=/products/1`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                productData = await response.json();
+                renderProduct();
+                updateBucketDisplay(); // Update bucket in case prices were loaded after bucket
+            } catch (error) {
+                console.error('Failed to load product:', error);
+                document.getElementById('productContent').innerHTML = `<div class="error">Failed to load configuration options. Please try again.</div>`;
+            }
+        }
+
+        function renderProduct() {
+            if (!productData || !productData.categories) {
+                document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>';
+                return;
+            }
+            let html = '';
+            productData.categories.forEach(category => {
+                if (category.options && category.options.length > 0) {
+                    html += `<div class="option-category"><div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
+                    category.options.forEach(option => {
+                        const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                        const currentPrice = option[priceKey] || option.price_usd;
+                        const symbol = currencySymbols[currentCurrency];
+                        const isOutOfStock = option.inventory <= 0;
+                        const inventoryClass = option.inventory < 10 ? 'low' : 'good';
+                        const maxQuantity = Math.min(option.max_quantity, option.inventory);
+
+                        let qtyOptions = '';
+                        for (let i = 1; i <= maxQuantity; i++) { qtyOptions += `<option value="${i}">${i}</option>`; }
+
+                        html += `<div class="sub-option ${isOutOfStock ? 'out-of-stock' : ''}" data-option-id="${option.id}"><div class="sub-option-info"><div><div class="sub-option-name">${option.name}</div>${option.description ? `<div class="sub-option-description">${option.description}</div>` : ''}</div><div class="inventory-badge ${inventoryClass}">${option.inventory} left</div></div><div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div><div class="sub-option-controls"><select class="quantity-select" ${isOutOfStock ? 'disabled' : ''}>${qtyOptions}</select><button class="add-btn" ${isOutOfStock ? 'disabled' : ''}>${isOutOfStock ? 'Out of Stock' : 'Add'}</button></div></div>`;
+                    });
+                    html += `</div></div>`;
+                }
+            });
+            document.getElementById('productContent').innerHTML = html;
+            updateAllSubOptionDisplays();
+            addEventListenersToOptions();
+        }
+
+        function addEventListenersToOptions() {
+            document.querySelectorAll('.sub-option button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const subOption = e.target.closest('.sub-option');
+                    if (subOption.classList.contains('out-of-stock')) return;
+
+                    const optionId = parseInt(subOption.dataset.optionId);
+                    const isInBucket = bucket.some(item => item.optionId === optionId);
+
+                    if (isInBucket) {
+                        const itemIndex = bucket.findIndex(item => item.optionId === optionId);
+                        removeFromBucket(itemIndex);
+                    } else {
+                        addToBucket(e.target);
+                    }
+                });
+            });
+        }
+
+        function addToBucket(button) {
+            const subOption = button.closest('.sub-option');
+            const optionId = parseInt(subOption.dataset.optionId);
+            const quantity = parseInt(subOption.querySelector('.quantity-select').value);
+            bucket.push({ optionId, quantity });
+            updateBucketDisplay();
+            updateSubOptionDisplay(optionId, true);
+            saveStateToLocalStorage();
+        }
+
+        function removeFromBucket(index) {
+            const removedItem = bucket.splice(index, 1)[0];
+            updateBucketDisplay();
+            if (removedItem) {
+                updateSubOptionDisplay(removedItem.optionId, false);
+            }
+            saveStateToLocalStorage();
+        }
+
+        function updateBucketDisplay() {
+            const bucketItemsEl = document.getElementById('bucketItems');
+            const bucketCountEl = document.querySelector('.bucket-count');
+            const totalAmountEl = document.querySelector('.total-amount');
+            const customerInfoEl = document.getElementById('customerInfo');
+            const symbol = currencySymbols[currentCurrency];
+
+            if (bucket.length === 0) {
+                bucketItemsEl.innerHTML = `<div class="empty-bucket">No items selected yet.<br>Choose your camera options to get started!</div>`;
+                bucketCountEl.textContent = '0 items selected';
+                totalAmountEl.innerHTML = `Total: <span>${symbol}0.00</span>`;
+                totalAmount = 0;
+                customerInfoEl.style.display = 'none';
+                return;
+            }
+
+            customerInfoEl.style.display = 'block';
+            let itemsHTML = '';
+            totalAmount = 0;
+            let totalItems = 0;
+
+            if (!productData) return; // Don't run if product data hasn't loaded yet
+
+            bucket.forEach((item, index) => {
+                let optionDetails = null;
+                let categoryName = 'Unknown';
+                for (const category of productData.categories) {
+                    optionDetails = category.options.find(opt => opt.id === item.optionId);
+                    if (optionDetails) {
+                        categoryName = category.name;
+                        break;
+                    }
+                }
+
+                if (optionDetails) {
+                    const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                    const currentPrice = optionDetails[priceKey] || optionDetails.price_usd;
+                    const itemTotal = currentPrice * item.quantity;
+                    totalAmount += itemTotal;
+                    totalItems += item.quantity;
+
+                    itemsHTML += `<div class="bucket-item"><div class="bucket-item-name">${optionDetails.name}</div><div class="bucket-item-option">${categoryName}</div><div class="bucket-item-details"><div class="bucket-item-quantity">Qty: ${item.quantity}</div><div class="bucket-item-price">${symbol}${itemTotal.toFixed(2)}</div><button class="bucket-item-remove" onclick="removeFromBucket(${index})">Remove</button></div></div>`;
+                }
+            });
+            bucketItemsEl.innerHTML = itemsHTML;
+            bucketCountEl.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''} selected`;
+            totalAmountEl.innerHTML = `Total<span>${symbol}${totalAmount.toFixed(2)}</span>`;
+        }
+
+        function updateSubOptionDisplay(optionId, inBucket) {
+            const subOptionEl = document.querySelector(`.sub-option[data-option-id="${optionId}"]`);
+            if (!subOptionEl) return;
+            const button = subOptionEl.querySelector('button');
+            if (inBucket) {
+                subOptionEl.classList.add('selected');
+                button.textContent = 'Remove';
+                button.classList.remove('add-btn');
+                button.classList.add('remove-btn');
+            } else {
+                subOptionEl.classList.remove('selected');
+                button.textContent = 'Add';
+                button.classList.remove('remove-btn');
+                button.classList.add('add-btn');
+            }
+        }
+
+        function updateAllSubOptionDisplays() {
+            document.querySelectorAll('.sub-option').forEach(el => {
+                const optionId = parseInt(el.dataset.optionId);
+                const inBucket = bucket.some(item => item.optionId === optionId);
+                updateSubOptionDisplay(optionId, inBucket);
+            });
+        }
+
+
+        function downloadInvoice() {
+            if (bucket.length === 0) {
+                alert('Please add some items to your configuration before downloading the invoice.');
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const symbol = currencySymbols[currentCurrency];
+
+            doc.setFillColor(102, 126, 234);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('ATLAS', 20, 25);
+            doc.setFontSize(12);
+            doc.text('Configuration Invoice', 20, 32);
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 150, 50);
+            doc.text(`Invoice #: SC-${Date.now()}`, 150, 55);
+
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            let yPos = 70;
+            if (customerName || customerEmail) {
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text('Customer Information:', 20, yPos);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                if (customerName) { yPos += 7; doc.text(`Name: ${customerName}`, 20, yPos); }
+                if (customerEmail) { yPos += 5; doc.text(`Email: ${customerEmail}`, 20, yPos); }
+            }
+
+            yPos += 15;
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text('Category', 20, yPos);
+            doc.text('Option', 70, yPos);
+            doc.text('Qty', 130, yPos);
+            doc.text('Price', 150, yPos);
+            doc.text('Total', 175, yPos);
+            doc.line(20, yPos + 2, 190, yPos + 2);
+
+            yPos += 10;
+            doc.setFont(undefined, 'normal');
+
+            bucket.forEach(item => {
+                let optionDetails = null;
+                let categoryName = 'Unknown';
+                for (const category of productData.categories) {
+                    optionDetails = category.options.find(opt => opt.id === item.optionId);
+                    if (optionDetails) {
+                        categoryName = category.name;
+                        break;
+                    }
+                }
+                if (optionDetails) {
+                    const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                    const currentPrice = optionDetails[priceKey] || optionDetails.price_usd;
+                    const itemTotal = currentPrice * item.quantity;
+                    doc.text(categoryName, 20, yPos);
+                    doc.text(optionDetails.name, 70, yPos);
+                    doc.text(item.quantity.toString(), 135, yPos, { align: 'center' });
+                    doc.text(`${symbol}${currentPrice.toFixed(2)}`, 165, yPos, { align: 'right' });
+                    doc.text(`${symbol}${itemTotal.toFixed(2)}`, 190, yPos, { align: 'right' });
+                    yPos += 8;
+                }
+            });
+
+            doc.line(130, yPos + 2, 190, yPos + 2);
+            yPos += 10;
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(12);
+            doc.text(`TOTAL: ${symbol}${totalAmount.toFixed(2)}`, 190, yPos, { align: 'right' });
+
+            yPos = 280;
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.text('Thank you for choosing Split Camera!', 20, yPos);
+            doc.text('For support, contact us at support@splitcamera.com', 20, yPos + 5);
+
+            doc.save(`atlas-configurator-invoice-${Date.now()}.pdf`);
+        }
+    </script>
+</body>
+
+</html>
