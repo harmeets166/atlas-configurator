@@ -66,10 +66,11 @@ function handleProducts($method, $pdo, $id) {
     switch ($method) {
         case 'GET':
             if ($id && is_numeric($id)) {
-                if ($id == 1) { // Public page fetches product 1 with all options
-                    getProductWithOptions($pdo, $id);
-                } else { // Admin fetches any other product ID to edit
+                // Admin and public use different functions now
+                if (isset($_SESSION['admin_id'])) {
                     getProductById($pdo, $id);
+                } else {
+                    getProductWithOptions($pdo, $id);
                 }
             } else {
                 getAllProducts($pdo);
@@ -109,7 +110,8 @@ function getProductWithOptions($pdo, $productId) {
             c.*, 
             o.id as option_id, o.name as option_name, o.description as option_desc,
             o.price_usd, o.price_gbp, o.price_eur,
-            o.inventory, o.max_quantity, o.display_order as option_order
+            o.inventory, o.display_order as option_order, o.auto_add_quantity,
+            o.image_url as option_image_url -- NEW
         FROM categories c
         LEFT JOIN options o ON c.id = o.category_id AND o.status = 'active'
         WHERE c.product_id = ? AND c.status = 'active'
@@ -129,11 +131,13 @@ function getProductWithOptions($pdo, $productId) {
                 'id' => (int)$row['option_id'],
                 'name' => $row['option_name'],
                 'description' => $row['option_desc'],
+                'image_url' => $row['option_image_url'], // NEW
                 'price_usd' => (float)$row['price_usd'],
                 'price_gbp' => (float)$row['price_gbp'],
                 'price_eur' => (float)$row['price_eur'],
                 'inventory' => (int)$row['inventory'],
-                'max_quantity' => (int)$row['max_quantity']
+                // REMOVED 'max_quantity'
+                'auto_add_quantity' => (int)$row['auto_add_quantity']
             ];
         }
     }
@@ -144,8 +148,13 @@ function getProductWithOptions($pdo, $productId) {
 
 function createProduct($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("INSERT INTO products (name, description, base_price) VALUES (?, ?, ?)");
-    if ($stmt->execute([$data['name'], $data['description'] ?? '', $data['base_price'] ?? 0.00])) {
+    $stmt = $pdo->prepare("INSERT INTO products (name, description, base_price, camera_type, make_model, lens, external_lens_motors, powered_rail, remote_pan_tilt_head, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if ($stmt->execute([
+        $data['name'], $data['description'] ?? '', $data['base_price'] ?? 0.00,
+        $data['camera_type'] ?? null, $data['make_model'] ?? null, $data['lens'] ?? null,
+        $data['external_lens_motors'] ?? 1, $data['powered_rail'] ?? 1, $data['remote_pan_tilt_head'] ?? 1,
+        $data['image_url'] ?? null
+    ])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
         http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed to create product']);
@@ -154,8 +163,14 @@ function createProduct($pdo) {
 
 function updateProduct($pdo, $productId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("UPDATE products SET name = ?, description = ?, base_price = ? WHERE id = ?");
-    $stmt->execute([$data['name'], $data['description'], $data['base_price'], $productId]);
+    $stmt = $pdo->prepare("UPDATE products SET name = ?, description = ?, base_price = ?, camera_type = ?, make_model = ?, lens = ?, external_lens_motors = ?, powered_rail = ?, remote_pan_tilt_head = ?, image_url = ? WHERE id = ?");
+    $stmt->execute([
+        $data['name'], $data['description'], $data['base_price'],
+        $data['camera_type'], $data['make_model'], $data['lens'],
+        $data['external_lens_motors'], $data['powered_rail'], $data['remote_pan_tilt_head'],
+        $data['image_url'] ?? null,
+        $productId
+    ]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -230,6 +245,7 @@ function handleOptions($method, $pdo, $id) {
 }
 
 function getAllOptions($pdo) {
+    // MODIFIED: Added o.image_url
     $stmt = $pdo->query("SELECT o.*, c.name as category_name FROM options o JOIN categories c ON o.category_id = c.id WHERE o.status = 'active' ORDER BY o.display_order");
     echo json_encode($stmt->fetchAll());
 }
@@ -244,8 +260,14 @@ function getOptionById($pdo, $optionId) {
 
 function createOption($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, description, price, price_usd, price_gbp, price_eur, inventory, max_quantity, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    if ($stmt->execute([$data['category_id'], $data['name'], $data['description'] ?? '', $data['price_usd'] ?? 0.00, $data['price_usd'] ?? 0.00, $data['price_gbp'] ?? 0.00, $data['price_eur'] ?? 0.00, $data['inventory'] ?? 0, $data['max_quantity'] ?? 5, $data['display_order'] ?? 0])) {
+    // MODIFIED: Added image_url, removed max_quantity
+    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    if ($stmt->execute([
+        $data['category_id'], $data['name'], $data['description'] ?? '', 
+        $data['price_usd'] ?? 0.00, $data['price_gbp'] ?? 0.00, $data['price_eur'] ?? 0.00, 
+        $data['inventory'] ?? 0, $data['display_order'] ?? 0, 
+        $data['auto_add_quantity'] ?? 0, $data['image_url'] ?? null
+    ])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
         http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed to create option']);
@@ -254,8 +276,14 @@ function createOption($pdo) {
 
 function updateOption($pdo, $optionId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, description = ?, price = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = ?, max_quantity = ?, display_order = ? WHERE id = ?");
-    $stmt->execute([$data['category_id'], $data['name'], $data['description'], $data['price_usd'], $data['price_usd'], $data['price_gbp'], $data['price_eur'], $data['inventory'], $data['max_quantity'], $data['display_order'], $optionId]);
+    // MODIFIED: Added image_url, removed max_quantity
+    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = ?, display_order = ?, auto_add_quantity = ?, image_url = ? WHERE id = ?");
+    $stmt->execute([
+        $data['category_id'], $data['name'], $data['description'], 
+        $data['price_usd'], $data['price_gbp'], $data['price_eur'], 
+        $data['inventory'], $data['display_order'], $data['auto_add_quantity'], 
+        $data['image_url'] ?? null, $optionId
+    ]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -264,6 +292,8 @@ function deleteOption($pdo, $optionId) {
     $stmt->execute([$optionId]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
+
+// ... (Orders Handler and Admin Handler are unchanged) ...
 
 // Orders Handler
 function handleOrders($method, $pdo, $id) {

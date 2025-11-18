@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Final Professional CSS Theme --- */
         :root {
             --color-primary: #0d6efd;
             --color-primary-light: #cfe2ff;
@@ -68,7 +67,7 @@
         }
 
         .product-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: 1.5rem;
             padding: 0;
             background: none;
             text-align: left;
@@ -81,12 +80,91 @@
             margin-bottom: 0.25rem;
             text-shadow: none;
         }
-
-        .product-subtitle {
-            font-size: 1.1rem;
-            color: var(--color-muted);
-            opacity: 1;
+        
+        .product-details {
+            background: var(--color-surface);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border: 1px solid var(--color-border);
+            /* margin-bottom: 2rem; */ /* Removed margin-bottom to fit wrapper */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
         }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            margin-bottom: 0.35rem;
+            font-weight: 500;
+        }
+        .detail-value, .detail-select {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-dark);
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            background-color: #f8f9fa;
+        }
+        .detail-select {
+            background-color: var(--color-surface);
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            padding-right: 2.5rem;
+        }
+        
+        .step-header {
+            background-color: var(--color-success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+            font-size: 1.1rem;
+        }
+        
+        .step-header.step-2 { background-color: #f0ad4e; }
+        .step-header.step-4 { background-color: #5bc0de; }
+        .step-header.step-5 { background-color: #6f42c1; }
+        .step-header.step-6 { background-color: #20c997; }
+        .step-header.step-7 { background-color: #fd7e14; }
+        .step-header.step-8 { background-color: #0dcaf0; }
+
+        .step-header.step-3 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .step-header.step-3 .step-title {
+             background-color: var(--color-primary);
+             padding: 0.5rem 1rem;
+             border-radius: var(--border-radius);
+        }
+        .step-header.step-3 .step-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .step-header.step-3 label {
+            font-weight: 500;
+        }
+         .step-header.step-3 select {
+             min-width: 80px;
+        }
+
 
         .loading,
         .error {
@@ -187,6 +265,26 @@
             align-items: center;
             gap: 1rem;
         }
+        
+        /* --- NEW OPTION IMAGE STYLES --- */
+        .sub-option-image-container {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            background-color: var(--color-background);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .sub-option-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* --- END NEW STYLES --- */
 
         .sub-option-name {
             font-weight: 600;
@@ -221,6 +319,9 @@
             align-items: center;
             gap: 0.75rem;
         }
+        .auto-qty-display {
+            font-weight: 500;
+        }
 
         .inventory-badge {
             background: #e9ecef;
@@ -239,13 +340,17 @@
             color: var(--color-success);
         }
 
-        .quantity-select {
+        .quantity-select, .yes-no-select {
             padding: 0.5rem 0.75rem;
             border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             font-size: 1rem;
             min-width: 70px;
             background-color: var(--color-surface);
+        }
+        .yes-no-select:disabled {
+            cursor: not-allowed;
+            background-color: #f8f9fa;
         }
 
         .add-btn, .remove-btn {
@@ -407,6 +512,35 @@
             border-color: var(--color-primary);
             box-shadow: 0 0 0 0.25rem var(--color-primary-light);
         }
+        
+        .rail-totals-main {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-border);
+        }
+        .rail-total-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            max-width: 400px;
+            margin-left: auto;
+        }
+        .rail-total-item .label {
+            font-weight: 600;
+            color: var(--color-dark);
+            text-align: right;
+        }
+        .rail-total-item .value {
+            font-weight: 500;
+            color: var(--color-body-text);
+            min-width: 100px;
+            text-align: left;
+            background-color: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius);
+        }
 
         .total-amount {
             font-size: 1rem;
@@ -447,7 +581,7 @@
             font-style: normal;
             padding: 4rem 1rem;
         }
- .currency-selector select {
+        .currency-selector select {
             position: fixed;
             bottom: 1.5rem;
             background: var(--color-surface);
@@ -501,6 +635,35 @@
             padding-right: 2.5rem;
         }
 
+        .product-main-wrapper {
+            display: grid;
+            grid-template-columns: 40% 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .product-image-container {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px; 
+            align-self: start;
+        }
+        .product-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: var(--border-radius);
+        }
+        .product-image-container .no-image {
+            color: var(--color-muted);
+            font-style: italic;
+        }
+
         @media (max-width: 1200px) {
             body { padding: 1rem; }
             .container {
@@ -511,6 +674,9 @@
                 position: relative;
                 top: 0;
                 height: auto;
+            }
+            .product-main-wrapper {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -535,6 +701,14 @@
             <div class="product-header">
                 <div class="product-title">Atlas Configurator</div>
             </div>
+            
+            <div class="product-main-wrapper">
+                <div class="product-image-container" id="productImageContainer">
+                    </div>
+                <div class="product-details-container">
+                    <div id="productDetailsSection"></div> </div>
+            </div>
+
             <div id="productContent">
                 <div class="loading">Loading configuration options...</div>
             </div>
@@ -555,6 +729,7 @@
                         <input type="email" class="form-input" id="customerEmail"
                             placeholder="Email Address (Optional)">
                     </div>
+
                     <div class="total-amount">Total: <span>$0.00</span></div>
                     <div class="action-buttons">
                         <button class="download-btn" onclick="downloadInvoice()">Download Invoice PDF</button>
@@ -575,7 +750,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // --- YOUR ORIGINAL, UNTOUCHED JAVASCRIPT ---
         let bucket = [];
         let totalAmount = 0;
         let productData = null;
@@ -603,7 +777,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadStateFromLocalStorage();
             loadProduct();
-            updateBucketDisplay();
         });
 
         function changeCurrency(newCurrency) {
@@ -618,42 +791,254 @@
                 const response = await fetch(`${API_BASE}=/products/1`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 productData = await response.json();
-                renderProduct();
-                updateBucketDisplay(); // Update bucket in case prices were loaded after bucket
+                handleSelectionChange();
             } catch (error) {
                 console.error('Failed to load product:', error);
                 document.getElementById('productContent').innerHTML = `<div class="error">Failed to load configuration options. Please try again.</div>`;
             }
         }
 
+        // ############################################
+        // START CHANGES FOR renderProduct()
+        // ############################################
+
         function renderProduct() {
-            if (!productData || !productData.categories) {
+            if (!productData) {
                 document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>';
                 return;
             }
+            
+            const imageContainer = document.getElementById('productImageContainer');
+            if (productData.image_url) {
+                imageContainer.innerHTML = `<img src="${productData.image_url}" alt="${productData.name}">`;
+            } else {
+                imageContainer.innerHTML = `<span class="no-image">No product image available.</span>`;
+            }
+            
+            const detailsContainer = document.getElementById('productDetailsSection');
+            if (detailsContainer) {
+                detailsContainer.innerHTML = `
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Camera Type</span>
+                            <select class="detail-select" id="cameraTypeSelector" onchange="handleSelectionChange(this, 'camera_type')">
+                                <option value="Broadcast" ${productData.camera_type === 'Broadcast' ? 'selected' : ''}>Broadcast</option>
+                                <option value="Cine" ${productData.camera_type === 'Cine' ? 'selected' : ''}>Cine</option>
+                                <option value="PTZ" ${productData.camera_type === 'PTZ' ? 'selected' : ''}>PTZ</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Make / Model</span>
+                            <span class="detail-value">${productData.make_model || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Lens</span>
+                            <span class="detail-value">${productData.lens || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">External Lens Motors Required</span>
+                            <select class="detail-select" id="externalLensMotorsSelector" onchange="handleSelectionChange(this, 'external_lens_motors')">
+                                <option value="1" ${productData.external_lens_motors == 1 ? 'selected' : ''}>Yes</option>
+                                <option value="0" ${productData.external_lens_motors == 0 ? 'selected' : ''}>No</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Powered Rail (i.e. not manual?)</span>
+                             <select class="detail-select" id="poweredRailSelector" onchange="handleSelectionChange(this, 'powered_rail')">
+                                <option value="1" ${productData.powered_rail == 1 ? 'selected' : ''}>Yes</option>
+                                <option value="0" ${productData.powered_rail == 0 ? 'selected' : ''}>No</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Include Remote Pan Tilt Head</span>
+                            <select class="detail-select" id="remotePanTiltHeadSelector" onchange="handleSelectionChange(this, 'remote_pan_tilt_head')">
+                                <option value="1" ${productData.remote_pan_tilt_head == 1 ? 'selected' : ''}>Yes</option>
+                                <option value="0" ${productData.remote_pan_tilt_head == 0 ? 'selected' : ''}>No</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+
             let html = '';
-            productData.categories.forEach(category => {
-                if (category.options && category.options.length > 0) {
-                    html += `<div class="option-category"><div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
-                    category.options.forEach(option => {
-                        const priceKey = `price_${currentCurrency.toLowerCase()}`;
-                        const currentPrice = option[priceKey] || option.price_usd;
-                        const symbol = currencySymbols[currentCurrency];
-                        const isOutOfStock = option.inventory <= 0;
-                        const inventoryClass = option.inventory < 10 ? 'low' : 'good';
-                        const maxQuantity = Math.min(option.max_quantity, option.inventory);
+            let stepHeaders = {2: false, 3: false, 4: false, 5: false, 6: false, 7: false, 8: false};
 
-                        let qtyOptions = '';
-                        for (let i = 1; i <= maxQuantity; i++) { qtyOptions += `<option value="${i}">${i}</option>`; }
+            if (productData.categories && productData.categories.length > 0) {
+                
+                productData.categories.forEach(category => {
+                    const categoryNameLower = category.name.toLowerCase();
+                    const isRailCategory = categoryNameLower.includes('rail');
+                    const isStep2Category = categoryNameLower.includes('robotic') || categoryNameLower.includes('accessory');
+                    const isStep3Category = categoryNameLower.includes('atlas configurations');
+                    const isStep4Category = categoryNameLower.includes('power supply');
+                    const isStep5Category = categoryNameLower === 'motor';
+                    const isStep6Category = categoryNameLower === 'software';
+                    const isStep7Category = categoryNameLower.includes('lens control');
+                    const isStep8Category = categoryNameLower.includes('cable packages');
 
-                        html += `<div class="sub-option ${isOutOfStock ? 'out-of-stock' : ''}" data-option-id="${option.id}"><div class="sub-option-info"><div><div class="sub-option-name">${option.name}</div>${option.description ? `<div class="sub-option-description">${option.description}</div>` : ''}</div><div class="inventory-badge ${inventoryClass}">${option.inventory} left</div></div><div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div><div class="sub-option-controls"><select class="quantity-select" ${isOutOfStock ? 'disabled' : ''}>${qtyOptions}</select><button class="add-btn" ${isOutOfStock ? 'disabled' : ''}>${isOutOfStock ? 'Out of Stock' : 'Add'}</button></div></div>`;
-                    });
-                    html += `</div></div>`;
-                }
-            });
+                    if (isRailCategory) { html += `<div class="step-header">Step 1:  ATLAS RAIL, DOLLY, MOTOR, POWER SUPPLY, BRACKETS & CABLE MANAGEMENT</div>`; }
+                    if (isStep2Category && !stepHeaders[2]) { html += `<div class="step-header step-2">Step 2: ROBOTIC HEAD & LENS CONTROL</div>`; stepHeaders[2] = true; }
+                    if (isStep4Category && !stepHeaders[4]) { html += `<div class="step-header step-4">Step 4:CONTROLLERS, SOFTWARE & LICENSES</div>`; stepHeaders[4] = true; }
+                    if (isStep5Category && !stepHeaders[5]) { html += `<div class="step-header step-5">Step 5: ADDITIONAL CABLE PACKAGES</div>`; stepHeaders[5] = true; }
+                    if (isStep6Category && !stepHeaders[6]) { html += `<div class="step-header step-6">Step 6:  ADDITIONAL ACCESSORIES</div>`; stepHeaders[6] = true; }
+                    // if (isStep7Category && !stepHeaders[7]) { html += `<div class="step-header step-7">Step 7: Lens Control</div>`; stepHeaders[7] = true; }
+                    // if (isStep8Category && !stepHeaders[8]) { html += `<div class="step-header step-8">Step 8: Cable Packages</div>`; stepHeaders[8] = true; }
+
+                    if (isStep3Category && !stepHeaders[3]) {
+                        const wantsCableGuides = bucket.some(item => {
+                            const opt = findOptionById(item.optionId);
+                            return opt && findCategoryByOption(opt)?.name.toLowerCase().includes('atlas configurations') && opt.auto_add_quantity > 0;
+                        });
+                        html += `<div class="step-header step-3">
+                                     <span class="step-title">Step 3:</span>
+                                     <div class="step-control">
+                                         <label>Do you want cable guides for the rail?</label>
+                                         <select class="detail-select" onchange="handleCableGuideSelection(this.value)">
+                                             <option value="no" ${!wantsCableGuides ? 'selected' : ''}>No</option>
+                                             <option value="yes" ${wantsCableGuides ? 'selected' : ''}>Yes</option>
+                                         </select>
+                                     </div>
+                                 </div>`;
+                        stepHeaders[3] = true;
+                    }
+
+                    if (category.options && category.options.length > 0) {
+                        html += `<div class="option-category" data-category-name="${category.name}">`;
+                        html += `<div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
+                        
+                        category.options.forEach(option => {
+                            const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                            const currentPrice = option[priceKey] || option.price_usd;
+                            const symbol = currencySymbols[currentCurrency];
+                            const isOutOfStock = option.inventory <= 0;
+                            const inBucket = bucket.some(item => item.optionId === option.id);
+                            
+                            // ADDED this line
+                            const imageUrl = option.image_url ? option.image_url : 'https://via.placeholder.com/60?text=Opt';
+
+                            // MODIFIED this block to include image
+                            html += `<div class="sub-option ${isOutOfStock ? 'out-of-stock' : ''}" data-option-id="${option.id}" data-option-name="${option.name}">
+                                <div class="sub-option-info">
+                                    <div class="sub-option-image-container">
+                                        <img src="${imageUrl}" alt="${option.name}" class="sub-option-image">
+                                    </div>
+                                    <div>
+                                        <div class="sub-option-name">${option.name}</div>
+                                        ${option.description ? `<div class="sub-option-description">${option.description}</div>` : ''}
+                                    </div>
+                                </div>
+                                <div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div>
+                                <div class="sub-option-controls">`;
+
+                            if (isStep2Category || isStep4Category || isStep5Category || isStep6Category || isStep7Category || isStep8Category) {
+                                let isDisabled = (isStep4Category || isStep5Category);
+                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})" ${isDisabled ? 'disabled' : ''}>
+                                             <option value="no" ${!inBucket ? 'selected' : ''}>No</option>
+                                             <option value="yes" ${inBucket ? 'selected' : ''}>Yes</option>
+                                         </select>`;
+                            } else if (isStep3Category) {
+                                const wantsCableGuides = document.querySelector('.step-header.step-3 select')?.value === 'yes';
+                                const autoAddedItem = bucket.find(item => item.optionId === option.id && option.auto_add_quantity > 0);
+                                if (wantsCableGuides && autoAddedItem) {
+                                    html += `<span class="auto-qty-display">QTY: ${autoAddedItem.quantity}</span>`;
+                                } else {
+                                     html += `<select class="quantity-select" disabled><option>0</option></select>`;
+                                }
+                            } else { // Rail category
+                                const inventoryClass = option.inventory < 10 ? 'low' : 'good';
+                                // MODIFIED: Removed max_quantity logic
+                                const maxQuantity = option.inventory; 
+                                let qtyOptions = '';
+                                // Set max quantity to 10 if inventory is high, otherwise use inventory
+                                const loopMax = Math.min(maxQuantity, 10);
+                                for (let i = 1; i <= loopMax; i++) { qtyOptions += `<option value="${i}">${i}</option>`; }
+                                html += `<div class="inventory-badge ${inventoryClass}">${option.inventory} left</div>
+                                         <select class="quantity-select" ${isOutOfStock ? 'disabled' : ''}>${qtyOptions}</select>
+                                         <button class="add-btn" ${isOutOfStock ? 'disabled' : ''}>${isOutOfStock ? 'Out of Stock' : 'Add'}</button>`;
+                            }
+
+                            html += `</div></div>`;
+                        });
+
+                        html += `</div>`;
+                        if (isRailCategory) {
+                            html += `<div id="rail-totals-main-display" class="rail-totals-main"></div>`;
+                        }
+                        html += `</div>`;
+                    }
+                });
+            } else {
+                 html = '<div class="error">No configuration options available for this product.</div>';
+            }
+
             document.getElementById('productContent').innerHTML = html;
             updateAllSubOptionDisplays();
             addEventListenersToOptions();
+            updateMainRailTotals();
+        }
+        
+        // ############################################
+        // END CHANGES FOR renderProduct()
+        // ############################################
+
+        function handleSelectionChange(selectElement, property) {
+            if (productData && property) {
+                productData[property] = selectElement.value;
+            }
+
+            updatePowerSupplyOptions();
+            updateMotorOptions();
+            
+            renderProduct();
+            updateBucketDisplay();
+            saveStateToLocalStorage();
+        }
+        
+        function updatePowerSupplyOptions() {
+            if (!productData) return;
+            const powerSupplyCategory = productData.categories.find(cat => cat.name.toLowerCase().includes('power supply'));
+            if (!powerSupplyCategory) return;
+
+            powerSupplyCategory.options.forEach(opt => {
+                const optionId = opt.id;
+                const itemIndex = bucket.findIndex(item => item.optionId === optionId);
+
+                if (areStepsVisible()) { 
+                    if (itemIndex === -1) {
+                        bucket.push({ optionId: optionId, quantity: 1 });
+                    }
+                } else {
+                    if (itemIndex > -1) {
+                        bucket.splice(itemIndex, 1);
+                    }
+                }
+            });
+        }
+        
+        function updateMotorOptions() {
+            if (!productData) return;
+            const motorCategory = productData.categories.find(cat => cat.name.toLowerCase() === 'motor');
+            if (!motorCategory) return;
+
+            const servoMotor = motorCategory.options.find(opt => opt.name.toLowerCase().includes('servo'));
+            const stepperMotor = motorCategory.options.find(opt => opt.name.toLowerCase().includes('stepper'));
+            
+            const poweredRail = productData.powered_rail == '1';
+
+            if (areStepsVisible() && poweredRail) {
+                if (servoMotor && !bucket.some(item => item.optionId === servoMotor.id)) {
+                    bucket.push({ optionId: servoMotor.id, quantity: 1 });
+                }
+                if (stepperMotor) {
+                    const stepperIndex = bucket.findIndex(item => item.optionId === stepperMotor.id);
+                    if (stepperIndex > -1) bucket.splice(stepperIndex, 1);
+                }
+            } else {
+                if (servoMotor) {
+                     const servoIndex = bucket.findIndex(item => item.optionId === servoMotor.id);
+                    if (servoIndex > -1) bucket.splice(servoIndex, 1);
+                }
+            }
         }
 
         function addEventListenersToOptions() {
@@ -661,10 +1046,8 @@
                 button.addEventListener('click', (e) => {
                     const subOption = e.target.closest('.sub-option');
                     if (subOption.classList.contains('out-of-stock')) return;
-
                     const optionId = parseInt(subOption.dataset.optionId);
                     const isInBucket = bucket.some(item => item.optionId === optionId);
-
                     if (isInBucket) {
                         const itemIndex = bucket.findIndex(item => item.optionId === optionId);
                         removeFromBucket(itemIndex);
@@ -673,6 +1056,105 @@
                     }
                 });
             });
+
+             document.querySelectorAll('.quantity-select').forEach(select => {
+                 select.addEventListener('change', (e) => {
+                     const subOption = e.target.closest('.sub-option');
+                     const optionId = parseInt(subOption.dataset.optionId);
+                     const itemInBucket = bucket.find(item => item.optionId === optionId);
+                     if(itemInBucket) {
+                         itemInBucket.quantity = parseInt(e.target.value);
+                         updateBucketDisplay();
+                         saveStateToLocalStorage();
+                     }
+                     updateMainRailTotals();
+                 });
+             });
+        }
+        
+        function handleYesNoSelection(selectElement, optionId) {
+            const isInBucket = bucket.some(item => item.optionId === optionId);
+            
+            if (selectElement.value === 'yes' && !isInBucket) {
+                bucket.push({ optionId: optionId, quantity: 1 });
+            } else if (selectElement.value === 'no' && isInBucket) {
+                const itemIndex = bucket.findIndex(item => item.optionId === optionId);
+                if (itemIndex > -1) {
+                    bucket.splice(itemIndex, 1);
+                }
+            }
+            updateBucketDisplay();
+            saveStateToLocalStorage();
+        }
+
+        function handleCableGuideSelection(value) {
+            const autoAddOptions = [];
+            productData.categories.forEach(cat => {
+                if (cat.name.toLowerCase().includes('atlas configurations')) {
+                    cat.options.forEach(opt => {
+                        if (opt.auto_add_quantity > 0) {
+                            autoAddOptions.push(opt);
+                        }
+                    });
+                }
+            });
+
+            if (value === 'yes') {
+                autoAddOptions.forEach(opt => {
+                    const isInBucket = bucket.some(item => item.optionId === opt.id);
+                    if (!isInBucket) {
+                        bucket.push({ optionId: opt.id, quantity: opt.auto_add_quantity });
+                    }
+                });
+            } else { // 'no'
+                autoAddOptions.forEach(opt => {
+                    const itemIndex = bucket.findIndex(item => item.optionId === opt.id);
+                    if (itemIndex > -1) {
+                        bucket.splice(itemIndex, 1);
+                    }
+                });
+            }
+            renderProduct();
+            updateBucketDisplay();
+            saveStateToLocalStorage();
+        }
+
+        function areStepsVisible() {
+             if (!productData) return false;
+            return true; // Always show the steps
+        }
+
+        function updateMainRailTotals() {
+            const displayContainer = document.getElementById('rail-totals-main-display');
+            if (!displayContainer || !areStepsVisible()) {
+                if (displayContainer) displayContainer.innerHTML = '';
+                return;
+            }
+
+            let totalRailLength = 0;
+            const railOptions = document.querySelectorAll('.option-category[data-category-name*="Rail"] .sub-option');
+
+            railOptions.forEach(optionEl => {
+                const name = optionEl.dataset.optionName;
+                const quantity = parseInt(optionEl.querySelector('.quantity-select').value);
+                const length = parseRailLength(name);
+                if (length > 0) {
+                    totalRailLength += length * quantity;
+                }
+            });
+
+            const totalToothedBelt = totalRailLength > 0 ? totalRailLength + 1 : 0;
+
+            displayContainer.innerHTML = `
+                <div class="rail-total-item">
+                    <span class="label">Total Rail Length:</span>
+                    <span class="value">${totalRailLength.toFixed(1)} Meters</span>
+                </div>
+                <div class="rail-total-item">
+                    <span class="label">Total Rail Toothed Belt:</span>
+                    <span class="value">${totalToothedBelt.toFixed(1)} Meters</span>
+                </div>
+            `;
         }
 
         function addToBucket(button) {
@@ -692,6 +1174,30 @@
                 updateSubOptionDisplay(removedItem.optionId, false);
             }
             saveStateToLocalStorage();
+        }
+        
+        function parseRailLength(name) {
+            const match = name.match(/(\d+(\.\d+)?)\s*m/i);
+            return match ? parseFloat(match[1]) : 0;
+        }
+        
+        function findOptionById(optionId) {
+            if (!productData || !productData.categories) return null;
+            for (const category of productData.categories) {
+                const found = category.options.find(opt => opt.id === optionId);
+                if (found) return found;
+            }
+            return null;
+        }
+        
+        function findCategoryByOption(option) {
+            if (!productData || !productData.categories) return null;
+            for (const category of productData.categories) {
+                if (category.options.some(opt => opt.id === option.id)) {
+                    return category;
+                }
+            }
+            return null;
         }
 
         function updateBucketDisplay() {
@@ -715,17 +1221,14 @@
             totalAmount = 0;
             let totalItems = 0;
 
-            if (!productData) return; // Don't run if product data hasn't loaded yet
+            if (!productData) return;
 
             bucket.forEach((item, index) => {
-                let optionDetails = null;
+                let optionDetails = findOptionById(item.optionId);
                 let categoryName = 'Unknown';
-                for (const category of productData.categories) {
-                    optionDetails = category.options.find(opt => opt.id === item.optionId);
-                    if (optionDetails) {
-                        categoryName = category.name;
-                        break;
-                    }
+                if(optionDetails) {
+                    let category = findCategoryByOption(optionDetails);
+                    if(category) categoryName = category.name;
                 }
 
                 if (optionDetails) {
@@ -738,6 +1241,7 @@
                     itemsHTML += `<div class="bucket-item"><div class="bucket-item-name">${optionDetails.name}</div><div class="bucket-item-option">${categoryName}</div><div class="bucket-item-details"><div class="bucket-item-quantity">Qty: ${item.quantity}</div><div class="bucket-item-price">${symbol}${itemTotal.toFixed(2)}</div><button class="bucket-item-remove" onclick="removeFromBucket(${index})">Remove</button></div></div>`;
                 }
             });
+
             bucketItemsEl.innerHTML = itemsHTML;
             bucketCountEl.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''} selected`;
             totalAmountEl.innerHTML = `Total<span>${symbol}${totalAmount.toFixed(2)}</span>`;
@@ -746,23 +1250,36 @@
         function updateSubOptionDisplay(optionId, inBucket) {
             const subOptionEl = document.querySelector(`.sub-option[data-option-id="${optionId}"]`);
             if (!subOptionEl) return;
-            const button = subOptionEl.querySelector('button');
-            if (inBucket) {
-                subOptionEl.classList.add('selected');
-                button.textContent = 'Remove';
-                button.classList.remove('add-btn');
-                button.classList.add('remove-btn');
-            } else {
-                subOptionEl.classList.remove('selected');
-                button.textContent = 'Add';
-                button.classList.remove('remove-btn');
-                button.classList.add('add-btn');
+            
+            const button = subOptionEl.querySelector('button.add-btn, button.remove-btn');
+            if (button) {
+                const select = subOptionEl.querySelector('.quantity-select');
+                if (inBucket) {
+                    const item = bucket.find(i => i.optionId === optionId);
+                    if(item && select) select.value = item.quantity;
+                    subOptionEl.classList.add('selected');
+                    button.textContent = 'Remove';
+                    button.classList.remove('add-btn');
+                    button.classList.add('remove-btn');
+                } else {
+                    if(select) select.value = 1;
+                    subOptionEl.classList.remove('selected');
+                    button.textContent = 'Add';
+                    button.classList.remove('remove-btn');
+                    button.classList.add('add-btn');
+                }
+            }
+            
+            const yesNoSelect = subOptionEl.querySelector('select.yes-no-select');
+            if (yesNoSelect) {
+                yesNoSelect.value = inBucket ? 'yes' : 'no';
             }
         }
 
         function updateAllSubOptionDisplays() {
             document.querySelectorAll('.sub-option').forEach(el => {
                 const optionId = parseInt(el.dataset.optionId);
+                if (isNaN(optionId)) return;
                 const inBucket = bucket.some(item => item.optionId === optionId);
                 updateSubOptionDisplay(optionId, inBucket);
             });
@@ -819,15 +1336,13 @@
             doc.setFont(undefined, 'normal');
 
             bucket.forEach(item => {
-                let optionDetails = null;
+                let optionDetails = findOptionById(item.optionId);
                 let categoryName = 'Unknown';
-                for (const category of productData.categories) {
-                    optionDetails = category.options.find(opt => opt.id === item.optionId);
-                    if (optionDetails) {
-                        categoryName = category.name;
-                        break;
-                    }
+                if(optionDetails) {
+                    let category = findCategoryByOption(optionDetails);
+                    if(category) categoryName = category.name;
                 }
+                
                 if (optionDetails) {
                     const priceKey = `price_${currentCurrency.toLowerCase()}`;
                     const currentPrice = optionDetails[priceKey] || optionDetails.price_usd;
@@ -850,8 +1365,8 @@
             yPos = 280;
             doc.setFontSize(8);
             doc.setFont(undefined, 'normal');
-            doc.text('Thank you for choosing Split Camera!', 20, yPos);
-            doc.text('For support, contact us at support@splitcamera.com', 20, yPos + 5);
+            doc.text('Thank you for choosing Atlas Configurator!', 20, yPos);
+            doc.text('For support, contact us at support@atlasconfig.com', 20, yPos + 5);
 
             doc.save(`atlas-configurator-invoice-${Date.now()}.pdf`);
         }
