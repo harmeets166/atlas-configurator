@@ -1,8 +1,8 @@
 <?php
-// api.php - Main API Handler (Fully Updated for All Features)
+// api.php - Main API Handler (Sorted by Step)
 include 'config.php';
 
-// CORS headers for API
+// CORS headers
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -12,17 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
-// Security function to check if an admin is logged in
+// Security function
 function checkAdminSession() {
     session_start();
     if (!isset($_SESSION['admin_id'])) {
-        http_response_code(401); // Unauthorized
-        echo json_encode(['error' => 'Authentication required. Please log in again.']);
+        http_response_code(401);
+        echo json_encode(['error' => 'Authentication required']);
         exit();
     }
 }
 
-// Logout function to destroy the session
 function adminLogout() {
     session_start();
     session_unset();
@@ -36,42 +35,28 @@ $endpoint = $request[0] ?? '';
 $id = $request[1] ?? null;
 
 switch ($endpoint) {
-    case 'products':
-        handleProducts($method, $pdo, $id);
-        break;
-    case 'categories':
-        handleCategories($method, $pdo, $id);
-        break;
-    case 'options':
-        handleOptions($method, $pdo, $id);
-        break;
-    case 'orders':
-        handleOrders($method, $pdo, $id);
-        break;
-    case 'admin':
-        $action = $id; // In this context, the second part of the path is the action
-        handleAdmin($method, $pdo, $action);
+    case 'products': handleProducts($method, $pdo, $id); break;
+    case 'categories': handleCategories($method, $pdo, $id); break;
+    case 'options': handleOptions($method, $pdo, $id); break;
+    case 'orders': handleOrders($method, $pdo, $id); break;
+    case 'admin': 
+        $action = $id; 
+        handleAdmin($method, $pdo, $action); 
         break;
     default:
         http_response_code(404);
-        echo json_encode(['error' => 'Endpoint not found: ' . $endpoint]);
+        echo json_encode(['error' => 'Endpoint not found']);
         break;
 }
 
-// Products Handler
+// --- Products Handler ---
 function handleProducts($method, $pdo, $id) {
-    if ($method !== 'GET') {
-        checkAdminSession();
-    }
+    if ($method !== 'GET') checkAdminSession();
     switch ($method) {
         case 'GET':
             if ($id && is_numeric($id)) {
-                // Admin and public use different functions now
-                if (isset($_SESSION['admin_id'])) {
-                    getProductById($pdo, $id);
-                } else {
-                    getProductWithOptions($pdo, $id);
-                }
+                if (isset($_SESSION['admin_id'])) getProductById($pdo, $id);
+                else getProductWithOptions($pdo, $id);
             } else {
                 getAllProducts($pdo);
             }
@@ -91,12 +76,8 @@ function getProductById($pdo, $productId) {
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->execute([$productId]);
     $product = $stmt->fetch();
-    if ($product) {
-        echo json_encode($product);
-    } else {
-        http_response_code(404);
-        echo json_encode(['error' => 'Product not found']);
-    }
+    if ($product) echo json_encode($product);
+    else { http_response_code(404); echo json_encode(['error' => 'Product not found']); }
 }
 
 function getProductWithOptions($pdo, $productId) {
@@ -105,17 +86,18 @@ function getProductWithOptions($pdo, $productId) {
     $product = $stmt->fetch();
     if (!$product) { http_response_code(404); echo json_encode(['error' => 'Product not found']); return; }
     
+    // *** CRITICAL CHANGE HERE: ORDER BY assigned_step ASC ***
     $stmt = $pdo->prepare("
         SELECT 
-            c.*, 
+            c.*, c.assigned_step,
             o.id as option_id, o.name as option_name, o.description as option_desc,
             o.price_usd, o.price_gbp, o.price_eur,
             o.inventory, o.display_order as option_order, o.auto_add_quantity,
-            o.image_url as option_image_url -- NEW
+            o.image_url as option_image_url
         FROM categories c
         LEFT JOIN options o ON c.id = o.category_id AND o.status = 'active'
         WHERE c.product_id = ? AND c.status = 'active'
-        ORDER BY c.display_order, o.display_order
+        ORDER BY c.assigned_step ASC, c.display_order ASC, o.display_order ASC
     ");
     $stmt->execute([$productId]);
     $results = $stmt->fetchAll();
@@ -124,19 +106,25 @@ function getProductWithOptions($pdo, $productId) {
     foreach ($results as $row) {
         $catId = $row['id'];
         if (!isset($categories[$catId])) {
-            $categories[$catId] = ['id' => $row['id'], 'name' => $row['name'], 'description' => $row['description'], 'options' => []];
+            $categories[$catId] = [
+                'id' => $row['id'], 
+                'name' => $row['name'], 
+                'description' => $row['description'],
+                'assigned_step' => $row['assigned_step'] ?? 1, 
+                'display_order' => $row['display_order'],
+                'options' => []
+            ];
         }
         if ($row['option_id']) {
             $categories[$catId]['options'][] = [
                 'id' => (int)$row['option_id'],
                 'name' => $row['option_name'],
                 'description' => $row['option_desc'],
-                'image_url' => $row['option_image_url'], // NEW
+                'image_url' => $row['option_image_url'],
                 'price_usd' => (float)$row['price_usd'],
                 'price_gbp' => (float)$row['price_gbp'],
                 'price_eur' => (float)$row['price_eur'],
                 'inventory' => (int)$row['inventory'],
-                // REMOVED 'max_quantity'
                 'auto_add_quantity' => (int)$row['auto_add_quantity']
             ];
         }
@@ -149,28 +137,17 @@ function getProductWithOptions($pdo, $productId) {
 function createProduct($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
     $stmt = $pdo->prepare("INSERT INTO products (name, description, base_price, camera_type, make_model, lens, external_lens_motors, powered_rail, remote_pan_tilt_head, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    if ($stmt->execute([
-        $data['name'], $data['description'] ?? '', $data['base_price'] ?? 0.00,
-        $data['camera_type'] ?? null, $data['make_model'] ?? null, $data['lens'] ?? null,
-        $data['external_lens_motors'] ?? 1, $data['powered_rail'] ?? 1, $data['remote_pan_tilt_head'] ?? 1,
-        $data['image_url'] ?? null
-    ])) {
+    if ($stmt->execute([$data['name'], $data['description'] ?? '', $data['base_price'] ?? 0.00, $data['camera_type'] ?? null, $data['make_model'] ?? null, $data['lens'] ?? null, $data['external_lens_motors'] ?? 1, $data['powered_rail'] ?? 1, $data['remote_pan_tilt_head'] ?? 1, $data['image_url'] ?? null])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
-        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed to create product']);
+        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed']);
     }
 }
 
 function updateProduct($pdo, $productId) {
     $data = json_decode(file_get_contents('php://input'), true);
     $stmt = $pdo->prepare("UPDATE products SET name = ?, description = ?, base_price = ?, camera_type = ?, make_model = ?, lens = ?, external_lens_motors = ?, powered_rail = ?, remote_pan_tilt_head = ?, image_url = ? WHERE id = ?");
-    $stmt->execute([
-        $data['name'], $data['description'], $data['base_price'],
-        $data['camera_type'], $data['make_model'], $data['lens'],
-        $data['external_lens_motors'], $data['powered_rail'], $data['remote_pan_tilt_head'],
-        $data['image_url'] ?? null,
-        $productId
-    ]);
+    $stmt->execute([$data['name'], $data['description'], $data['base_price'], $data['camera_type'], $data['make_model'], $data['lens'], $data['external_lens_motors'], $data['powered_rail'], $data['remote_pan_tilt_head'], $data['image_url'] ?? null, $productId]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -180,7 +157,7 @@ function deleteProduct($pdo, $productId) {
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
-// Categories Handler
+// --- Categories Handler ---
 function handleCategories($method, $pdo, $id) {
     if ($method !== 'GET') checkAdminSession();
     switch ($method) {
@@ -195,7 +172,8 @@ function handleCategories($method, $pdo, $id) {
 }
 
 function getAllCategories($pdo) {
-    $stmt = $pdo->query("SELECT c.*, p.name as product_name FROM categories c JOIN products p ON c.product_id = p.id WHERE c.status = 'active' ORDER BY c.display_order");
+    // *** CRITICAL CHANGE: ORDER BY assigned_step first ***
+    $stmt = $pdo->query("SELECT c.*, p.name as product_name FROM categories c JOIN products p ON c.product_id = p.id WHERE c.status = 'active' ORDER BY c.assigned_step ASC, c.display_order ASC");
     echo json_encode($stmt->fetchAll());
 }
 
@@ -203,24 +181,24 @@ function getCategoryById($pdo, $categoryId) {
     $stmt = $pdo->prepare("SELECT * FROM categories WHERE id = ?");
     $stmt->execute([$categoryId]);
     $category = $stmt->fetch();
-    if ($category) { echo json_encode($category); } 
-    else { http_response_code(404); echo json_encode(['error' => 'Category not found']); }
+    if ($category) echo json_encode($category);
+    else { http_response_code(404); echo json_encode(['error' => 'Not found']); }
 }
 
 function createCategory($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("INSERT INTO categories (product_id, name, description, display_order) VALUES (?, ?, ?, ?)");
-    if ($stmt->execute([$data['product_id'], $data['name'], $data['description'] ?? '', $data['display_order'] ?? 0])) {
+    $stmt = $pdo->prepare("INSERT INTO categories (product_id, name, description, display_order, assigned_step) VALUES (?, ?, ?, ?, ?)");
+    if ($stmt->execute([$data['product_id'], $data['name'], $data['description'] ?? '', $data['display_order'] ?? 0, $data['assigned_step'] ?? 1])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
-        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed to create category']);
+        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed']);
     }
 }
 
 function updateCategory($pdo, $categoryId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("UPDATE categories SET product_id = ?, name = ?, description = ?, display_order = ? WHERE id = ?");
-    $stmt->execute([$data['product_id'], $data['name'], $data['description'], $data['display_order'], $categoryId]);
+    $stmt = $pdo->prepare("UPDATE categories SET product_id = ?, name = ?, description = ?, display_order = ?, assigned_step = ? WHERE id = ?");
+    $stmt->execute([$data['product_id'], $data['name'], $data['description'], $data['display_order'], $data['assigned_step'], $categoryId]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -230,7 +208,7 @@ function deleteCategory($pdo, $categoryId) {
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
-// Options Handler
+// --- Options Handler ---
 function handleOptions($method, $pdo, $id) {
     if ($method !== 'GET') checkAdminSession();
     switch ($method) {
@@ -245,7 +223,6 @@ function handleOptions($method, $pdo, $id) {
 }
 
 function getAllOptions($pdo) {
-    // MODIFIED: Added o.image_url
     $stmt = $pdo->query("SELECT o.*, c.name as category_name FROM options o JOIN categories c ON o.category_id = c.id WHERE o.status = 'active' ORDER BY o.display_order");
     echo json_encode($stmt->fetchAll());
 }
@@ -254,36 +231,24 @@ function getOptionById($pdo, $optionId) {
     $stmt = $pdo->prepare("SELECT * FROM options WHERE id = ?");
     $stmt->execute([$optionId]);
     $option = $stmt->fetch();
-    if ($option) { echo json_encode($option); } 
-    else { http_response_code(404); echo json_encode(['error' => 'Option not found']); }
+    if ($option) echo json_encode($option);
+    else { http_response_code(404); echo json_encode(['error' => 'Not found']); }
 }
 
 function createOption($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    // MODIFIED: Added image_url, removed max_quantity
     $stmt = $pdo->prepare("INSERT INTO options (category_id, name, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    if ($stmt->execute([
-        $data['category_id'], $data['name'], $data['description'] ?? '', 
-        $data['price_usd'] ?? 0.00, $data['price_gbp'] ?? 0.00, $data['price_eur'] ?? 0.00, 
-        $data['inventory'] ?? 0, $data['display_order'] ?? 0, 
-        $data['auto_add_quantity'] ?? 0, $data['image_url'] ?? null
-    ])) {
+    if ($stmt->execute([$data['category_id'], $data['name'], $data['description'] ?? '', $data['price_usd'] ?? 0, $data['price_gbp'] ?? 0, $data['price_eur'] ?? 0, $data['inventory'] ?? 0, $data['display_order'] ?? 0, $data['auto_add_quantity'] ?? 0, $data['image_url'] ?? null])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
-        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed to create option']);
+        http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed']);
     }
 }
 
 function updateOption($pdo, $optionId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    // MODIFIED: Added image_url, removed max_quantity
     $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = ?, display_order = ?, auto_add_quantity = ?, image_url = ? WHERE id = ?");
-    $stmt->execute([
-        $data['category_id'], $data['name'], $data['description'], 
-        $data['price_usd'], $data['price_gbp'], $data['price_eur'], 
-        $data['inventory'], $data['display_order'], $data['auto_add_quantity'], 
-        $data['image_url'] ?? null, $optionId
-    ]);
+    $stmt->execute([$data['category_id'], $data['name'], $data['description'], $data['price_usd'], $data['price_gbp'], $data['price_eur'], $data['inventory'], $data['display_order'], $data['auto_add_quantity'], $data['image_url'] ?? null, $optionId]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -293,9 +258,7 @@ function deleteOption($pdo, $optionId) {
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
-// ... (Orders Handler and Admin Handler are unchanged) ...
-
-// Orders Handler
+// --- Orders Handler ---
 function handleOrders($method, $pdo, $id) {
     if ($method === 'GET') checkAdminSession();
     switch ($method) {
@@ -323,7 +286,7 @@ function createOrder($pdo) {
     } catch (Exception $e) {
         $pdo->rollBack();
         http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Failed to create order: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'error' => 'Failed']);
     }
 }
 
@@ -332,7 +295,7 @@ function getAllOrders($pdo) {
     echo json_encode($stmt->fetchAll());
 }
 
-// Admin Handler
+// --- Admin Handler ---
 function handleAdmin($method, $pdo, $action) {
     if ($action === 'login' && $method === 'POST') {
         adminLogin($pdo);
@@ -341,10 +304,7 @@ function handleAdmin($method, $pdo, $action) {
         getDashboardStats($pdo);
     } else if ($action === 'status' && $method === 'GET') {
         checkAdminSession();
-        echo json_encode([
-            'success' => true,
-            'user' => [ 'id' => $_SESSION['admin_id'], 'username' => $_SESSION['admin_username'] ]
-        ]);
+        echo json_encode(['success' => true, 'user' => [ 'id' => $_SESSION['admin_id'], 'username' => $_SESSION['admin_username'] ]]);
     } else if ($action === 'logout' && $method === 'GET') {
         adminLogout();
     }
