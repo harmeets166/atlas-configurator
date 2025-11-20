@@ -387,16 +387,6 @@
             background-color: #0b5ed7;
         }
 
-        .inventory-low {
-            color: var(--color-danger);
-            font-weight: bold;
-        }
-
-        .inventory-good {
-            color: var(--color-success);
-            font-weight: bold;
-        }
-
         .login-container {
             display: flex;
             justify-content: center;
@@ -535,10 +525,6 @@
                         <div class="stat-number" id="revenueToday">$0</div>
                         <div class="stat-label">Revenue Today</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="lowInventory">0</div>
-                        <div class="stat-label">Low Inventory Alerts</div>
-                    </div>
                 </div>
             </div>
             <div id="productsSection" class="content-section">
@@ -599,10 +585,10 @@
                                 <th>Image</th>
                                 <th>Category</th>
                                 <th>Name</th>
+                                <th>Code</th>
                                 <th>Price (USD)</th>
                                 <th>Price (GBP)</th>
                                 <th>Price (EUR)</th>
-                                <th>Inventory</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -695,7 +681,6 @@
                         class="form-input" id="categoryName" required></div>
                 <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea"
                         id="categoryDescription"></textarea></div>
-
                 <div class="form-group">
                     <label class="form-label">Assign to Step</label>
                     <select class="form-select" id="categoryStep">
@@ -726,6 +711,8 @@
                     </select></div>
                 <div class="form-group"><label class="form-label">Option Name</label><input type="text"
                         class="form-input" id="optionName" required></div>
+                <div class="form-group"><label class="form-label">Product Code</label><input type="text"
+                        class="form-input" id="optionProductCode"></div>
                 <div class="form-group"><label class="form-label">Option Image URL</label><input type="text"
                         class="form-input" id="optionImageUrl"><img src="" alt="Image Preview"
                         class="product-image-preview" id="optionImagePreview"></div>
@@ -737,10 +724,12 @@
                         class="form-input" id="optionPriceGBP" step="0.01" min="0" required></div>
                 <div class="form-group"><label class="form-label">Price (EUR)</label><input type="number"
                         class="form-input" id="optionPriceEUR" step="0.01" min="0" required></div>
-                <div class="form-group"><label class="form-label">Inventory</label><input type="number"
-                        class="form-input" id="optionInventory" min="0" value="0"></div>
                 <div class="form-group"><label class="form-label">Display Order</label><input type="number"
                         class="form-input" id="optionOrder" min="0" value="0"></div>
+
+                <div class="form-group"><label class="form-label">Recommended Quantity</label><input type="number"
+                        class="form-input" id="optionRecQty" min="0" value="0"></div>
+
                 <div class="form-group"><label class="form-label">Auto Add Quantity</label><input type="number"
                         class="form-input" id="optionAutoAddQuantity" min="0" value="0"></div>
                 <button type="submit" class="submit-btn">Save Option</button>
@@ -785,7 +774,7 @@
             try {
                 const response = await fetch(`${API_BASE}/admin/dashboard`);
                 const stats = await response.json();
-                document.getElementById('totalProducts').textContent = stats.total_products; document.getElementById('totalCategories').textContent = stats.total_categories; document.getElementById('totalOptions').textContent = stats.total_options; document.getElementById('ordersToday').textContent = stats.orders_today; document.getElementById('revenueToday').textContent = `$${stats.revenue_today.toFixed(2)}`; document.getElementById('lowInventory').textContent = stats.low_inventory;
+                document.getElementById('totalProducts').textContent = stats.total_products; document.getElementById('totalCategories').textContent = stats.total_categories; document.getElementById('totalOptions').textContent = stats.total_options; document.getElementById('ordersToday').textContent = stats.orders_today; document.getElementById('revenueToday').textContent = `$${stats.revenue_today.toFixed(2)}`;
             } catch (error) { console.error('Failed to load stats:', error); }
         }
         function showSection(sectionName) {
@@ -806,14 +795,13 @@
         async function loadCategories() {
             try {
                 const response = await fetch(`${API_BASE}/categories`); const categories = await response.json(); const tbody = document.querySelector('#categoriesTable tbody'); tbody.innerHTML = '';
-                // UPDATED: Added step column
                 categories.forEach(c => { tbody.innerHTML += `<tr><td>${c.id}</td><td>${c.product_name}</td><td>${c.name}</td><td>${c.description || ''}</td><td>${c.assigned_step || 1}</td><td>${c.display_order}</td><td><span class="status-${c.status}">${c.status}</span></td><td><button class="action-btn" onclick="editCategory(${c.id})">Edit</button><button class="action-btn delete" onclick="deleteCategory(${c.id})">Delete</button></td></tr>`; });
             } catch (error) { console.error('Failed to load categories:', error); }
         }
         async function loadOptions() {
             try {
                 const response = await fetch(`${API_BASE}/options`); const options = await response.json(); const tbody = document.querySelector('#optionsTable tbody'); tbody.innerHTML = '';
-                options.forEach(o => { const invClass = o.inventory < 10 ? 'inventory-low' : 'inventory-good'; tbody.innerHTML += `<tr><td>${o.id}</td><td><img src="${o.image_url || 'https://via.placeholder.com/60?text=No+Image'}" class="product-image-thumbnail"></td><td>${o.category_name}</td><td>${o.name}</td><td>$${parseFloat(o.price_usd).toFixed(2)}</td><td>£${parseFloat(o.price_gbp).toFixed(2)}</td><td>€${parseFloat(o.price_eur).toFixed(2)}</td><td><span class="${invClass}">${o.inventory}</span></td><td><button class="action-btn" onclick="editOption(${o.id})">Edit</button><button class="action-btn delete" onclick="deleteOption(${o.id})">Delete</button></td></tr>`; });
+                options.forEach(o => { tbody.innerHTML += `<tr><td>${o.id}</td><td><img src="${o.image_url || 'https://via.placeholder.com/60?text=No+Image'}" class="product-image-thumbnail"></td><td>${o.category_name}</td><td>${o.name}</td><td>${o.product_code || ''}</td><td>$${parseFloat(o.price_usd).toFixed(2)}</td><td>£${parseFloat(o.price_gbp).toFixed(2)}</td><td>€${parseFloat(o.price_eur).toFixed(2)}</td><td><button class="action-btn" onclick="editOption(${o.id})">Edit</button><button class="action-btn delete" onclick="deleteOption(${o.id})">Delete</button></td></tr>`; });
             } catch (error) { console.error('Failed to load options:', error); }
         }
         async function loadOrders() {
@@ -841,11 +829,9 @@
                 document.getElementById('categoryName').value = data.name;
                 document.getElementById('categoryDescription').value = data.description;
                 document.getElementById('categoryOrder').value = data.display_order;
-                // UPDATED: Load the step
                 document.getElementById('categoryStep').value = data.assigned_step || 1;
             } else {
                 modalTitle.textContent = 'Add Category';
-                // Default to 1
                 document.getElementById('categoryStep').value = 1;
             }
             document.getElementById('categoryModal').style.display = 'flex';
@@ -854,7 +840,10 @@
         async function openOptionModal(optionId = null, data = null) {
             currentEditId = optionId; document.getElementById('optionForm').reset(); const modalTitle = document.querySelector('#optionModal .modal-title'); const preview = document.getElementById('optionImagePreview'); await loadCategoriesForSelect();
             if (optionId && data) {
-                modalTitle.textContent = 'Edit Option'; document.getElementById('optionCategoryId').value = data.category_id; document.getElementById('optionName').value = data.name; document.getElementById('optionDescription').value = data.description; document.getElementById('optionPriceUSD').value = data.price_usd; document.getElementById('optionPriceGBP').value = data.price_gbp; document.getElementById('optionPriceEUR').value = data.price_eur; document.getElementById('optionInventory').value = data.inventory; document.getElementById('optionOrder').value = data.display_order; document.getElementById('optionAutoAddQuantity').value = data.auto_add_quantity || 0; document.getElementById('optionImageUrl').value = data.image_url || ''; preview.src = data.image_url || ''; preview.style.display = data.image_url ? 'block' : 'none';
+                // UPDATED: Load Recommended Quantity
+                modalTitle.textContent = 'Edit Option'; document.getElementById('optionCategoryId').value = data.category_id; document.getElementById('optionName').value = data.name; document.getElementById('optionProductCode').value = data.product_code || ''; document.getElementById('optionDescription').value = data.description; document.getElementById('optionPriceUSD').value = data.price_usd; document.getElementById('optionPriceGBP').value = data.price_gbp; document.getElementById('optionPriceEUR').value = data.price_eur; document.getElementById('optionOrder').value = data.display_order; document.getElementById('optionAutoAddQuantity').value = data.auto_add_quantity || 0;
+                document.getElementById('optionRecQty').value = data.recommended_quantity || 0;
+                document.getElementById('optionImageUrl').value = data.image_url || ''; preview.src = data.image_url || ''; preview.style.display = data.image_url ? 'block' : 'none';
             } else { modalTitle.textContent = 'Add Option'; preview.style.display = 'none'; }
             document.getElementById('optionModal').style.display = 'flex';
         }
@@ -871,16 +860,16 @@
                 if (entityType === 'product') {
                     formData = { name: form.productName.value, description: form.productDescription.value, base_price: parseFloat(form.productPrice.value), image_url: form.productImageUrl.value, camera_type: form.productCameraType.value, make_model: form.productMakeModel.value, lens: form.productLens.value, external_lens_motors: form.productExternalLensMotors.value, powered_rail: form.productPoweredRail.value, remote_pan_tilt_head: form.productRemotePanTiltHead.value };
                 } else if (entityType === 'category') {
-                    // UPDATED: Include step in form submission
                     formData = {
                         product_id: form.categoryProductId.value,
                         name: form.categoryName.value,
                         description: form.categoryDescription.value,
                         display_order: form.categoryOrder.value,
-                        assigned_step: form.categoryStep.value // This is the new field
+                        assigned_step: form.categoryStep.value
                     };
                 } else {
-                    formData = { category_id: form.optionCategoryId.value, name: form.optionName.value, image_url: form.optionImageUrl.value, description: form.optionDescription.value, price_usd: parseFloat(form.optionPriceUSD.value), price_gbp: parseFloat(form.optionPriceGBP.value), price_eur: parseFloat(form.optionPriceEUR.value), inventory: parseInt(form.optionInventory.value), display_order: parseInt(form.optionOrder.value), auto_add_quantity: parseInt(form.optionAutoAddQuantity.value) };
+                    // UPDATED: Save Recommended Quantity
+                    formData = { category_id: form.optionCategoryId.value, name: form.optionName.value, product_code: form.optionProductCode.value, image_url: form.optionImageUrl.value, description: form.optionDescription.value, price_usd: parseFloat(form.optionPriceUSD.value), price_gbp: parseFloat(form.optionPriceGBP.value), price_eur: parseFloat(form.optionPriceEUR.value), inventory: 99999, display_order: parseInt(form.optionOrder.value), auto_add_quantity: parseInt(form.optionAutoAddQuantity.value), recommended_quantity: parseInt(form.optionRecQty.value) };
                 }
                 const method = currentEditId ? 'PUT' : 'POST'; const endpoint = entityType === 'category' ? 'categories' : `${entityType}s`; const url = currentEditId ? `${API_BASE}/${endpoint}/${currentEditId}` : `${API_BASE}/${endpoint}`;
                 try {

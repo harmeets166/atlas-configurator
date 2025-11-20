@@ -1,5 +1,5 @@
 <?php
-// api.php - Main API Handler (Sorted by Step)
+// api.php - Main API Handler (With Recommended Quantity)
 include 'config.php';
 
 // CORS headers
@@ -86,13 +86,15 @@ function getProductWithOptions($pdo, $productId) {
     $product = $stmt->fetch();
     if (!$product) { http_response_code(404); echo json_encode(['error' => 'Product not found']); return; }
     
-    // *** CRITICAL CHANGE HERE: ORDER BY assigned_step ASC ***
+    // UPDATED: Added o.recommended_quantity
     $stmt = $pdo->prepare("
         SELECT 
             c.*, c.assigned_step,
             o.id as option_id, o.name as option_name, o.description as option_desc,
+            o.product_code, 
             o.price_usd, o.price_gbp, o.price_eur,
             o.inventory, o.display_order as option_order, o.auto_add_quantity,
+            o.recommended_quantity,
             o.image_url as option_image_url
         FROM categories c
         LEFT JOIN options o ON c.id = o.category_id AND o.status = 'active'
@@ -119,13 +121,15 @@ function getProductWithOptions($pdo, $productId) {
             $categories[$catId]['options'][] = [
                 'id' => (int)$row['option_id'],
                 'name' => $row['option_name'],
+                'product_code' => $row['product_code'],
                 'description' => $row['option_desc'],
                 'image_url' => $row['option_image_url'],
                 'price_usd' => (float)$row['price_usd'],
                 'price_gbp' => (float)$row['price_gbp'],
                 'price_eur' => (float)$row['price_eur'],
                 'inventory' => (int)$row['inventory'],
-                'auto_add_quantity' => (int)$row['auto_add_quantity']
+                'auto_add_quantity' => (int)$row['auto_add_quantity'],
+                'recommended_quantity' => (int)$row['recommended_quantity'] // Added
             ];
         }
     }
@@ -172,7 +176,6 @@ function handleCategories($method, $pdo, $id) {
 }
 
 function getAllCategories($pdo) {
-    // *** CRITICAL CHANGE: ORDER BY assigned_step first ***
     $stmt = $pdo->query("SELECT c.*, p.name as product_name FROM categories c JOIN products p ON c.product_id = p.id WHERE c.status = 'active' ORDER BY c.assigned_step ASC, c.display_order ASC");
     echo json_encode($stmt->fetchAll());
 }
@@ -223,6 +226,7 @@ function handleOptions($method, $pdo, $id) {
 }
 
 function getAllOptions($pdo) {
+    // UPDATED: Added o.recommended_quantity to SELECT
     $stmt = $pdo->query("SELECT o.*, c.name as category_name FROM options o JOIN categories c ON o.category_id = c.id WHERE o.status = 'active' ORDER BY o.display_order");
     echo json_encode($stmt->fetchAll());
 }
@@ -237,8 +241,21 @@ function getOptionById($pdo, $optionId) {
 
 function createOption($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    if ($stmt->execute([$data['category_id'], $data['name'], $data['description'] ?? '', $data['price_usd'] ?? 0, $data['price_gbp'] ?? 0, $data['price_eur'] ?? 0, $data['inventory'] ?? 0, $data['display_order'] ?? 0, $data['auto_add_quantity'] ?? 0, $data['image_url'] ?? null])) {
+    // UPDATED: Added recommended_quantity
+    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, product_code, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, recommended_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, 99999, ?, ?, ?, ?)");
+    if ($stmt->execute([
+        $data['category_id'], 
+        $data['name'], 
+        $data['product_code'] ?? '', 
+        $data['description'] ?? '', 
+        $data['price_usd'] ?? 0, 
+        $data['price_gbp'] ?? 0, 
+        $data['price_eur'] ?? 0, 
+        $data['display_order'] ?? 0, 
+        $data['auto_add_quantity'] ?? 0, 
+        $data['recommended_quantity'] ?? 0, // Added
+        $data['image_url'] ?? null
+    ])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
         http_response_code(500); echo json_encode(['success' => false, 'error' => 'Failed']);
@@ -247,8 +264,22 @@ function createOption($pdo) {
 
 function updateOption($pdo, $optionId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = ?, display_order = ?, auto_add_quantity = ?, image_url = ? WHERE id = ?");
-    $stmt->execute([$data['category_id'], $data['name'], $data['description'], $data['price_usd'], $data['price_gbp'], $data['price_eur'], $data['inventory'], $data['display_order'], $data['auto_add_quantity'], $data['image_url'] ?? null, $optionId]);
+    // UPDATED: Added recommended_quantity
+    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, product_code = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = 99999, display_order = ?, auto_add_quantity = ?, recommended_quantity = ?, image_url = ? WHERE id = ?");
+    $stmt->execute([
+        $data['category_id'], 
+        $data['name'], 
+        $data['product_code'], 
+        $data['description'], 
+        $data['price_usd'], 
+        $data['price_gbp'], 
+        $data['price_eur'], 
+        $data['display_order'], 
+        $data['auto_add_quantity'], 
+        $data['recommended_quantity'], // Added
+        $data['image_url'] ?? null, 
+        $optionId
+    ]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);
 }
 
@@ -276,10 +307,9 @@ function createOrder($pdo) {
         $stmt->execute([$orderNumber, $data['customer_email'] ?? '', $data['customer_name'] ?? '', $data['total_amount']]);
         $orderId = $pdo->lastInsertId();
         $itemStmt = $pdo->prepare("INSERT INTO order_items (order_id, option_id, category_name, option_name, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
-        $invStmt = $pdo->prepare("UPDATE options SET inventory = inventory - ? WHERE id = ?");
+        
         foreach ($data['items'] as $item) {
             $itemStmt->execute([$orderId, $item['optionId'], $item['category'], $item['option'], $item['price'], $item['quantity']]);
-            $invStmt->execute([$item['quantity'], $item['optionId']]);
         }
         $pdo->commit();
         echo json_encode(['success' => true, 'order_number' => $orderNumber]);
@@ -332,7 +362,7 @@ function getDashboardStats($pdo) {
     $stats['total_options'] = $pdo->query("SELECT COUNT(*) FROM options WHERE status = 'active'")->fetchColumn();
     $stats['orders_today'] = $pdo->query("SELECT COUNT(*) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn();
     $stats['revenue_today'] = (float)$pdo->query("SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn();
-    $stats['low_inventory'] = $pdo->query("SELECT COUNT(*) FROM options WHERE inventory < 10 AND status = 'active'")->fetchColumn();
+    $stats['low_inventory'] = 0;
     echo json_encode($stats);
 }
 ?>
