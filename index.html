@@ -1311,8 +1311,8 @@
 
             doc.autoTable({ startY: finalY + 5, head: [['Category', 'Option', 'Qty', 'Price', 'Total']], body: itemRows, theme: 'striped', headStyles: { fillColor: [44, 62, 80] }, foot: [['', '', '', 'TOTAL:', symbol + totalAmount.toFixed(2)]], footStyles: { fontStyle: 'bold', fillColor: [255, 255, 255], textColor: [0, 0, 0] } });
 
-            const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-            doc.setFontSize(8); doc.text('Thank you for choosing Atlas Configurator!', 14, pageHeight - 20); doc.text('For support, contact us at support@atlasconfig.com', 14, pageHeight - 15);
+            // const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+            // doc.setFontSize(8); doc.text('Thank you for choosing Atlas Configurator!', 14, pageHeight - 20); doc.text('For support, contact us at support@atlasconfig.com', 14, pageHeight - 15);
 
             doc.save(`atlas-configurator-invoice-${Date.now()}.pdf`);
         }
