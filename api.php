@@ -1,5 +1,5 @@
 <?php
-// api.php - Main API Handler (With Recommended Quantity)
+// api.php - Main API Handler (With Notes Support)
 include 'config.php';
 
 // CORS headers
@@ -86,7 +86,7 @@ function getProductWithOptions($pdo, $productId) {
     $product = $stmt->fetch();
     if (!$product) { http_response_code(404); echo json_encode(['error' => 'Product not found']); return; }
     
-    // UPDATED: Added o.recommended_quantity
+    // UPDATED: Added o.note to the SELECT query
     $stmt = $pdo->prepare("
         SELECT 
             c.*, c.assigned_step,
@@ -95,6 +95,7 @@ function getProductWithOptions($pdo, $productId) {
             o.price_usd, o.price_gbp, o.price_eur,
             o.inventory, o.display_order as option_order, o.auto_add_quantity,
             o.recommended_quantity,
+            o.note,  
             o.image_url as option_image_url
         FROM categories c
         LEFT JOIN options o ON c.id = o.category_id AND o.status = 'active'
@@ -129,7 +130,8 @@ function getProductWithOptions($pdo, $productId) {
                 'price_eur' => (float)$row['price_eur'],
                 'inventory' => (int)$row['inventory'],
                 'auto_add_quantity' => (int)$row['auto_add_quantity'],
-                'recommended_quantity' => (int)$row['recommended_quantity'] // Added
+                'recommended_quantity' => (int)$row['recommended_quantity'],
+                'note' => $row['note'] // Added Note
             ];
         }
     }
@@ -226,7 +228,7 @@ function handleOptions($method, $pdo, $id) {
 }
 
 function getAllOptions($pdo) {
-    // UPDATED: Added o.recommended_quantity to SELECT
+    // UPDATED: Added o.note to SELECT
     $stmt = $pdo->query("SELECT o.*, c.name as category_name FROM options o JOIN categories c ON o.category_id = c.id WHERE o.status = 'active' ORDER BY o.display_order");
     echo json_encode($stmt->fetchAll());
 }
@@ -241,8 +243,10 @@ function getOptionById($pdo, $optionId) {
 
 function createOption($pdo) {
     $data = json_decode(file_get_contents('php://input'), true);
-    // UPDATED: Added recommended_quantity
-    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, product_code, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, recommended_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, 99999, ?, ?, ?, ?)");
+    // UPDATED: Added note column to INSERT
+    $stmt = $pdo->prepare("INSERT INTO options (category_id, name, product_code, description, price_usd, price_gbp, price_eur, inventory, display_order, auto_add_quantity, recommended_quantity, image_url, note) VALUES (?, ?, ?, ?, ?, ?, ?, 99999, ?, ?, ?, ?, ?)");
+    
+    // UPDATED: Execute array includes note
     if ($stmt->execute([
         $data['category_id'], 
         $data['name'], 
@@ -253,8 +257,9 @@ function createOption($pdo) {
         $data['price_eur'] ?? 0, 
         $data['display_order'] ?? 0, 
         $data['auto_add_quantity'] ?? 0, 
-        $data['recommended_quantity'] ?? 0, // Added
-        $data['image_url'] ?? null
+        $data['recommended_quantity'] ?? 0,
+        $data['image_url'] ?? null,
+        $data['note'] ?? null // Added Note
     ])) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
@@ -264,8 +269,10 @@ function createOption($pdo) {
 
 function updateOption($pdo, $optionId) {
     $data = json_decode(file_get_contents('php://input'), true);
-    // UPDATED: Added recommended_quantity
-    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, product_code = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = 99999, display_order = ?, auto_add_quantity = ?, recommended_quantity = ?, image_url = ? WHERE id = ?");
+    // UPDATED: Added note column to UPDATE
+    $stmt = $pdo->prepare("UPDATE options SET category_id = ?, name = ?, product_code = ?, description = ?, price_usd = ?, price_gbp = ?, price_eur = ?, inventory = 99999, display_order = ?, auto_add_quantity = ?, recommended_quantity = ?, image_url = ?, note = ? WHERE id = ?");
+    
+    // UPDATED: Execute array includes note
     $stmt->execute([
         $data['category_id'], 
         $data['name'], 
@@ -276,8 +283,9 @@ function updateOption($pdo, $optionId) {
         $data['price_eur'], 
         $data['display_order'], 
         $data['auto_add_quantity'], 
-        $data['recommended_quantity'], // Added
+        $data['recommended_quantity'], 
         $data['image_url'] ?? null, 
+        $data['note'] ?? null, // Added Note
         $optionId
     ]);
     echo json_encode(['success' => $stmt->rowCount() > 0]);

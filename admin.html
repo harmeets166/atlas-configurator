@@ -27,11 +27,7 @@
             --transition-fast: all 0.2s ease-in-out;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: var(--font-family-sans);
@@ -50,418 +46,162 @@
             align-items: center;
         }
 
-        .logo {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: var(--color-dark);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            font-weight: 500;
-        }
+        .logo { font-size: 1.5em; font-weight: 600; color: var(--color-dark); }
+        .user-info { display: flex; align-items: center; gap: 1.5rem; font-weight: 500; }
 
         .logout-btn {
-            background: transparent;
-            color: var(--color-danger);
-            border: 1px solid var(--color-danger);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition-fast);
+            background: transparent; color: var(--color-danger); border: 1px solid var(--color-danger);
+            padding: 0.5rem 1rem; border-radius: var(--border-radius); cursor: pointer;
+            font-weight: 600; transition: var(--transition-fast);
         }
+        .logout-btn:hover { background: var(--color-danger); color: white; transform: none; }
 
-        .logout-btn:hover {
-            background: var(--color-danger);
-            color: white;
-            transform: none;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
 
         .dashboard-nav {
-            background: var(--color-surface);
-            border-radius: var(--border-radius);
-            padding: 0.75rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--color-border);
+            background: var(--color-surface); border-radius: var(--border-radius); padding: 0.75rem;
+            margin-bottom: 2rem; border: 1px solid var(--color-border);
         }
 
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
+        .nav-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
         .nav-btn {
-            background: transparent;
-            color: var(--color-body-text);
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.95rem;
+            background: transparent; color: var(--color-body-text); border: none; padding: 0.6rem 1rem;
+            border-radius: var(--border-radius); cursor: pointer; font-weight: 500; font-size: 0.95rem;
             transition: var(--transition-fast);
         }
-
-        .nav-btn:hover {
-            background: #e9ecef;
-            color: var(--color-dark);
-        }
-
-        .nav-btn.active {
-            background: var(--color-primary);
-            color: white;
-            font-weight: 600;
-        }
+        .nav-btn:hover { background: #e9ecef; color: var(--color-dark); }
+        .nav-btn.active { background: var(--color-primary); color: white; font-weight: 600; }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: var(--color-surface);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            border: 1px solid var(--color-border);
-            text-align: left;
-            transition: var(--transition-fast);
+            background: var(--color-surface); border-radius: var(--border-radius); padding: 1.5rem;
+            border: 1px solid var(--color-border); text-align: left; transition: var(--transition-fast);
         }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-sm); border-color: var(--color-primary); }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-sm);
-            border-color: var(--color-primary);
-        }
-
-        .stat-number {
-            font-size: 2.25em;
-            font-weight: 700;
-            color: var(--color-dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-label {
-            color: var(--color-secondary);
-            font-size: 1em;
-            font-weight: 500;
-        }
+        .stat-number { font-size: 2.25em; font-weight: 700; color: var(--color-dark); margin-bottom: 0.25rem; }
+        .stat-label { color: var(--color-secondary); font-size: 1em; font-weight: 500; }
 
         .content-section {
-            background: var(--color-surface);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            border: 1px solid var(--color-border);
-            display: none;
+            background: var(--color-surface); border-radius: var(--border-radius); padding: 2rem;
+            border: 1px solid var(--color-border); display: none;
         }
-
-        .content-section.active {
-            display: block;
-        }
+        .content-section.active { display: block; }
 
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--color-border);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);
         }
-
-        .section-title {
-            font-size: 1.75em;
-            color: var(--color-dark);
-            font-weight: 600;
-        }
+        .section-title { font-size: 1.75em; color: var(--color-dark); font-weight: 600; }
 
         .add-btn {
-            background: var(--color-success);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.25rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition-fast);
+            background: var(--color-success); color: white; border: none; padding: 0.6rem 1.25rem;
+            border-radius: var(--border-radius); cursor: pointer; font-weight: 600; transition: var(--transition-fast);
             font-size: 0.95rem;
         }
+        .add-btn:hover { background: #157347; }
 
-        .add-btn:hover {
-            background: #157347;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--color-surface);
-        }
-
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); }
         th {
-            background: var(--color-background);
-            color: var(--color-secondary);
-            padding: 0.8rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid var(--color-border);
-            font-size: 0.9rem;
-            text-transform: uppercase;
+            background: var(--color-background); color: var(--color-secondary); padding: 0.8rem 1rem;
+            text-align: left; font-weight: 600; border-bottom: 2px solid var(--color-border);
+            font-size: 0.9rem; text-transform: uppercase;
         }
+        td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+        tbody tr:hover { background: #f8f9fa; }
 
-        td {
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid var(--color-border);
-            vertical-align: middle;
+        .status-active, .status-inactive {
+            color: white; padding: 0.25rem 0.6rem; border-radius: var(--border-radius);
+            font-size: 0.85em; font-weight: 600; display: inline-block;
         }
-
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-active,
-        .status-inactive {
-            color: white;
-            padding: 0.25rem 0.6rem;
-            border-radius: var(--border-radius);
-            font-size: 0.85em;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-active {
-            background: var(--color-success);
-        }
-
-        .status-inactive {
-            background: var(--color-danger);
-        }
-
-        .status-pending {
-            background: #ffc107;
-            color: var(--color-dark);
-        }
+        .status-active { background: var(--color-success); }
+        .status-inactive { background: var(--color-danger); }
+        .status-pending { background: #ffc107; color: var(--color-dark); }
 
         .action-btn {
-            background: transparent;
-            color: var(--color-primary);
-            border: 1px solid transparent;
-            padding: 0.3rem 0.6rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-right: 5px;
-            font-weight: 600;
-            transition: var(--transition-fast);
+            background: transparent; color: var(--color-primary); border: 1px solid transparent;
+            padding: 0.3rem 0.6rem; border-radius: var(--border-radius); cursor: pointer;
+            font-size: 0.9em; margin-right: 5px; font-weight: 600; transition: var(--transition-fast);
         }
-
-        .action-btn:hover {
-            background: var(--color-primary-light);
-            border-color: var(--color-primary);
-        }
-
-        .action-btn.delete {
-            color: var(--color-danger);
-        }
-
-        .action-btn.delete:hover {
-            background: var(--color-danger);
-            border-color: var(--color-danger);
-            color: white;
-        }
+        .action-btn:hover { background: var(--color-primary-light); border-color: var(--color-primary); }
+        .action-btn.delete { color: var(--color-danger); }
+        .action-btn.delete:hover { background: var(--color-danger); border-color: var(--color-danger); color: white; }
 
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 5vh;
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); align-items: flex-start;
+            justify-content: center; padding-top: 5vh;
         }
-
         .modal-content {
-            background: white;
-            padding: 1.5rem 2rem;
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 600px;
-            box-shadow: var(--shadow-md);
-            max-height: 90vh;
-            overflow-y: auto;
+            background: white; padding: 1.5rem 2rem; border-radius: var(--border-radius); width: 90%;
+            max-width: 600px; box-shadow: var(--shadow-md); max-height: 90vh; overflow-y: auto;
         }
-
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--color-border);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);
         }
-
-        .modal-title {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: var(--color-dark);
-        }
-
+        .modal-title { font-size: 1.5em; font-weight: 600; color: var(--color-dark); }
         .close {
-            background: transparent;
-            color: var(--color-secondary);
-            border: none;
-            padding: 0.5rem;
-            cursor: pointer;
-            font-size: 1.5rem;
-            line-height: 1;
-            font-weight: 600;
+            background: transparent; color: var(--color-secondary); border: none; padding: 0.5rem;
+            cursor: pointer; font-size: 1.5rem; line-height: 1; font-weight: 600;
         }
 
-        .form-group {
-            margin-bottom: 1.25rem;
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-dark); }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: var(--border-radius);
+            font-size: 1em; transition: var(--transition-fast); background-color: var(--color-surface);
         }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--color-dark);
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--color-primary); outline: none; box-shadow: 0 0 0 0.25rem var(--color-primary-light);
         }
-
-        .form-input,
-        .form-select,
-        .form-textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            font-size: 1em;
-            transition: var(--transition-fast);
-            background-color: var(--color-surface);
-        }
-
-        .form-input:focus,
-        .form-select:focus,
-        .form-textarea:focus {
-            border-color: var(--color-primary);
-            outline: none;
-            box-shadow: 0 0 0 0.25rem var(--color-primary-light);
-        }
-
-        .form-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
+        .form-textarea { min-height: 120px; resize: vertical; }
 
         .submit-btn {
-            background: var(--color-primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1em;
+            background: var(--color-primary); color: white; border: none; padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius); cursor: pointer; font-weight: 600; font-size: 1em;
             transition: var(--transition-fast);
         }
-
-        .submit-btn:hover {
-            background-color: #0b5ed7;
-        }
+        .submit-btn:hover { background-color: #0b5ed7; }
 
         .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
-            background: var(--color-background);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            padding: 1rem; background: var(--color-background);
         }
-
         .login-form {
-            background: var(--color-surface);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            width: 100%;
-            max-width: 420px;
-            border: 1px solid var(--color-border);
+            background: var(--color-surface); padding: 2.5rem; border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md); width: 100%; max-width: 420px; border: 1px solid var(--color-border);
         }
-
-        .login-title {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 2rem;
-            color: var(--color-dark);
-            font-weight: 600;
+        .home-url {
+            position: absolute; top: 1rem; right: 1.5rem; text-decoration: none;
+            background: var(--color-surface); color: var(--color-dark); border: 1px solid var(--color-border);
+            padding: 0.6rem 1.2rem; border-radius: 2rem; font-weight: 500; box-shadow: var(--shadow-sm);
+            transition: var(--transition-fast); z-index: 1000; font-size: 0.9rem;
         }
+        .login-title { text-align: center; font-size: 2em; margin-bottom: 2rem; color: var(--color-dark); font-weight: 600; }
 
         .product-image-thumbnail {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--color-border);
-            vertical-align: middle;
+            width: 60px; height: 60px; object-fit: cover; border-radius: var(--border-radius);
+            border: 1px solid var(--color-border); vertical-align: middle;
         }
-
         .modal .product-image-preview {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--color-border);
-            margin-top: 10px;
-            background-color: var(--color-background);
+            width: 100%; max-height: 200px; object-fit: contain; border-radius: var(--border-radius);
+            border: 1px solid var(--color-border); margin-top: 10px; background-color: var(--color-background);
             display: none;
         }
-
-        .modal .product-image-preview[src] {
-            display: block;
-        }
+        .modal .product-image-preview[src] { display: block; }
 
         @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-            }
-
-            .container {
-                padding: 1rem;
-            }
-
-            .stats-grid,
-            .nav-buttons,
-            .section-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .section-header {
-                align-items: stretch;
-            }
-
-            .modal-content {
-                margin: 5% auto;
-                width: 95%;
-            }
+            .header { padding: 1rem; }
+            .container { padding: 1rem; }
+            .stats-grid, .nav-buttons, .section-header { flex-direction: column; gap: 1rem; }
+            .section-header { align-items: stretch; }
+            .modal-content { margin: 5% auto; width: 95%; }
         }
     </style>
 </head>
@@ -471,24 +211,22 @@
         <div class="login-form">
             <h2 class="login-title">Admin Login</h2>
             <form id="loginForm">
-                <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input"
-                        id="username" required></div>
-                <div class="form-group"><label class="form-label">Password</label><input type="password"
-                        class="form-input" id="password" required></div>
+                <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" id="username" required></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="password" required></div>
                 <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="rememberMe" style="width: auto; height: 1rem;">
-                    <label for="rememberMe" class="form-label" style="margin-bottom: 0; font-weight: 500;">Remember
-                        Me</label>
+                    <label for="rememberMe" class="form-label" style="margin-bottom: 0; font-weight: 500;">Remember Me</label>
                 </div>
                 <button type="submit" class="submit-btn" style="width: 100%;">Login</button>
             </form>
         </div>
+        <div class="frontend"><a href="index.html" class="home-url">Home</a></div>
     </div>
+
     <div id="dashboardContainer" style="display: none;">
         <div class="header">
             <div class="logo">Atlas Configurator</div>
-            <div class="user-info"><span id="welcomeUser">Welcome, Admin</span><button class="logout-btn"
-                    onclick="logout()">Logout</button></div>
+            <div class="user-info"><span id="welcomeUser">Welcome, Admin</span><button class="logout-btn" onclick="logout()">Logout</button></div>
         </div>
         <div class="container">
             <div class="dashboard-nav">
@@ -500,119 +238,53 @@
                     <button class="nav-btn" onclick="showSection('orders')">Orders</button>
                 </div>
             </div>
+
             <div id="dashboardSection" class="content-section active">
-                <div class="section-header">
-                    <h2 class="section-title">Dashboard Overview</h2>
-                </div>
+                <div class="section-header"><h2 class="section-title">Dashboard Overview</h2></div>
                 <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalProducts">0</div>
-                        <div class="stat-label">Total Products</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalCategories">0</div>
-                        <div class="stat-label">Categories</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalOptions">0</div>
-                        <div class="stat-label">Options</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="ordersToday">0</div>
-                        <div class="stat-label">Orders Today</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="revenueToday">$0</div>
-                        <div class="stat-label">Revenue Today</div>
-                    </div>
+                    <div class="stat-card"><div class="stat-number" id="totalProducts">0</div><div class="stat-label">Total Products</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalCategories">0</div><div class="stat-label">Categories</div></div>
+                    <div class="stat-card"><div class="stat-number" id="totalOptions">0</div><div class="stat-label">Options</div></div>
+                    <div class="stat-card"><div class="stat-number" id="ordersToday">0</div><div class="stat-label">Orders Today</div></div>
+                    <div class="stat-card"><div class="stat-number" id="revenueToday">$0</div><div class="stat-label">Revenue Today</div></div>
                 </div>
             </div>
+
             <div id="productsSection" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Products Management</h2><button class="add-btn"
-                        onclick="openProductModal()">Add Product</button>
-                </div>
+                <div class="section-header"><h2 class="section-title">Products Management</h2><button class="add-btn" onclick="openProductModal()">Add Product</button></div>
                 <div class="table-container">
                     <table id="productsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Image</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Base Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Description</th><th>Base Price</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
+
             <div id="categoriesSection" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Categories Management</h2><button class="add-btn"
-                        onclick="openCategoryModal()">Add Category</button>
-                </div>
+                <div class="section-header"><h2 class="section-title">Categories Management</h2><button class="add-btn" onclick="openCategoryModal()">Add Category</button></div>
                 <div class="table-container">
                     <table id="categoriesTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Product</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Step</th>
-                                <th>Order</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>ID</th><th>Product</th><th>Name</th><th>Description</th><th>Step</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
+
             <div id="optionsSection" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Options Management</h2><button class="add-btn"
-                        onclick="openOptionModal()">Add Option</button>
-                </div>
+                <div class="section-header"><h2 class="section-title">Options Management</h2><button class="add-btn" onclick="openOptionModal()">Add Option</button></div>
                 <div class="table-container">
                     <table id="optionsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Image</th>
-                                <th>Category</th>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Price (USD)</th>
-                                <th>Price (GBP)</th>
-                                <th>Price (EUR)</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>ID</th><th>Image</th><th>Category</th><th>Name</th><th>Note</th><th>Code</th><th>Price (USD)</th><th>Price (GBP)</th><th>Price (EUR)</th><th>Actions</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
+
             <div id="ordersSection" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Orders Management</h2>
-                </div>
+                <div class="section-header"><h2 class="section-title">Orders Management</h2></div>
                 <div class="table-container">
                     <table id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th>Order #</th>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Total</th>
-                                <th>Items</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Order #</th><th>Customer</th><th>Email</th><th>Total</th><th>Items</th><th>Date</th><th>Status</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -622,45 +294,18 @@
 
     <div id="productModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Add/Edit Product</h3><button class="close"
-                    onclick="closeModal('productModal')">&times;</button>
-            </div>
+            <div class="modal-header"><h3 class="modal-title">Add/Edit Product</h3><button class="close" onclick="closeModal('productModal')">&times;</button></div>
             <form id="productForm">
-                <div class="form-group"><label class="form-label">Product Name</label><input type="text"
-                        class="form-input" id="productName" required></div>
-                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea"
-                        id="productDescription"></textarea></div>
-                <div class="form-group"><label class="form-label">Base Price</label><input type="number"
-                        class="form-input" id="productPrice" step="0.01" min="0" value="0.00"></div>
-                <div class="form-group"><label class="form-label">Product Image URL</label><input type="text"
-                        class="form-input" id="productImageUrl"><img src="" alt="Image Preview"
-                        class="product-image-preview" id="productImagePreview"></div>
-                <div class="form-group"><label class="form-label">Camera Type</label><select class="form-select"
-                        id="productCameraType">
-                        <option value="Broadcast">Broadcast</option>
-                        <option value="Cine">Cine</option>
-                        <option value="PTZ">PTZ</option>
-                    </select></div>
-                <div class="form-group"><label class="form-label">Camera Make / Model</label><input type="text"
-                        class="form-input" id="productMakeModel"></div>
-                <div class="form-group"><label class="form-label">Lens</label><input type="text" class="form-input"
-                        id="productLens"></div>
-                <div class="form-group"><label class="form-label">External Lens Motors Required</label><select
-                        class="form-select" id="productExternalLensMotors">
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select></div>
-                <div class="form-group"><label class="form-label">Powered Rail</label><select class="form-select"
-                        id="productPoweredRail">
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select></div>
-                <div class="form-group"><label class="form-label">Include Remote Pan Tilt Head</label><select
-                        class="form-select" id="productRemotePanTiltHead">
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select></div>
+                <div class="form-group"><label class="form-label">Product Name</label><input type="text" class="form-input" id="productName" required></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="productDescription"></textarea></div>
+                <div class="form-group"><label class="form-label">Base Price</label><input type="number" class="form-input" id="productPrice" step="0.01" min="0" value="0.00"></div>
+                <div class="form-group"><label class="form-label">Product Image URL</label><input type="text" class="form-input" id="productImageUrl"><img src="" alt="Image Preview" class="product-image-preview" id="productImagePreview"></div>
+                <div class="form-group"><label class="form-label">Camera Type</label><select class="form-select" id="productCameraType"><option value="Broadcast">Broadcast</option><option value="Cine">Cine</option><option value="PTZ">PTZ</option></select></div>
+                <div class="form-group"><label class="form-label">Camera Make / Model</label><input type="text" class="form-input" id="productMakeModel"></div>
+                <div class="form-group"><label class="form-label">Lens</label><input type="text" class="form-input" id="productLens"></div>
+                <div class="form-group"><label class="form-label">External Lens Motors Required</label><select class="form-select" id="productExternalLensMotors"><option value="1">Yes</option><option value="0">No</option></select></div>
+                <div class="form-group"><label class="form-label">Powered Rail</label><select class="form-select" id="productPoweredRail"><option value="1">Yes</option><option value="0">No</option></select></div>
+                <div class="form-group"><label class="form-label">Include Remote Pan Tilt Head</label><select class="form-select" id="productRemotePanTiltHead"><option value="1">Yes</option><option value="0">No</option></select></div>
                 <button type="submit" class="submit-btn">Save Product</button>
             </form>
         </div>
@@ -668,31 +313,13 @@
 
     <div id="categoryModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Add/Edit Category</h3><button class="close"
-                    onclick="closeModal('categoryModal')">&times;</button>
-            </div>
+            <div class="modal-header"><h3 class="modal-title">Add/Edit Category</h3><button class="close" onclick="closeModal('categoryModal')">&times;</button></div>
             <form id="categoryForm">
-                <div class="form-group"><label class="form-label">Product</label><select class="form-select"
-                        id="categoryProductId" required>
-                        <option value="">Select Product</option>
-                    </select></div>
-                <div class="form-group"><label class="form-label">Category Name</label><input type="text"
-                        class="form-input" id="categoryName" required></div>
-                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea"
-                        id="categoryDescription"></textarea></div>
-                <div class="form-group">
-                    <label class="form-label">Assign to Step</label>
-                    <select class="form-select" id="categoryStep">
-                        <option value="1">Step 1 (Rail/Motor/Power)</option>
-                        <option value="2">Step 2 (Robotic Head)</option>
-                        <option value="3">Step 3 (Controllers, soft)</option>
-                        <option value="4">Step 4 (Add. Cables)</option>
-                        <option value="5">Step 5 (Add. Accessories)</option>
-                    </select>
-                </div>
-                <div class="form-group"><label class="form-label">Display Order</label><input type="number"
-                        class="form-input" id="categoryOrder" min="0" value="0"></div>
+                <div class="form-group"><label class="form-label">Product</label><select class="form-select" id="categoryProductId" required><option value="">Select Product</option></select></div>
+                <div class="form-group"><label class="form-label">Category Name</label><input type="text" class="form-input" id="categoryName" required></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="categoryDescription"></textarea></div>
+                <div class="form-group"><label class="form-label">Assign to Step</label><select class="form-select" id="categoryStep"><option value="1">Step 1 (Rail/Motor/Power)</option><option value="2">Step 2 (Robotic Head)</option><option value="3">Step 3 (Controllers, soft)</option><option value="4">Step 4 (Add. Cables)</option><option value="5">Step 5 (Add. Accessories)</option></select></div>
+                <div class="form-group"><label class="form-label">Display Order</label><input type="number" class="form-input" id="categoryOrder" min="0" value="0"></div>
                 <button type="submit" class="submit-btn">Save Category</button>
             </form>
         </div>
@@ -700,38 +327,25 @@
 
     <div id="optionModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Add/Edit Option</h3><button class="close"
-                    onclick="closeModal('optionModal')">&times;</button>
-            </div>
+            <div class="modal-header"><h3 class="modal-title">Add/Edit Option</h3><button class="close" onclick="closeModal('optionModal')">&times;</button></div>
             <form id="optionForm">
-                <div class="form-group"><label class="form-label">Category</label><select class="form-select"
-                        id="optionCategoryId" required>
-                        <option value="">Select Category</option>
-                    </select></div>
-                <div class="form-group"><label class="form-label">Option Name</label><input type="text"
-                        class="form-input" id="optionName" required></div>
-                <div class="form-group"><label class="form-label">Product Code</label><input type="text"
-                        class="form-input" id="optionProductCode"></div>
-                <div class="form-group"><label class="form-label">Option Image URL</label><input type="text"
-                        class="form-input" id="optionImageUrl"><img src="" alt="Image Preview"
-                        class="product-image-preview" id="optionImagePreview"></div>
-                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea"
-                        id="optionDescription"></textarea></div>
-                <div class="form-group"><label class="form-label">Price (USD)</label><input type="number"
-                        class="form-input" id="optionPriceUSD" step="0.01" min="0" required></div>
-                <div class="form-group"><label class="form-label">Price (GBP)</label><input type="number"
-                        class="form-input" id="optionPriceGBP" step="0.01" min="0" required></div>
-                <div class="form-group"><label class="form-label">Price (EUR)</label><input type="number"
-                        class="form-input" id="optionPriceEUR" step="0.01" min="0" required></div>
-                <div class="form-group"><label class="form-label">Display Order</label><input type="number"
-                        class="form-input" id="optionOrder" min="0" value="0"></div>
+                <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="optionCategoryId" required><option value="">Select Category</option></select></div>
+                <div class="form-group"><label class="form-label">Option Name</label><input type="text" class="form-input" id="optionName" required></div>
+                <div class="form-group"><label class="form-label">Product Code</label><input type="text" class="form-input" id="optionProductCode"></div>
+                <div class="form-group"><label class="form-label">Option Image URL</label><input type="text" class="form-input" id="optionImageUrl"><img src="" alt="Image Preview" class="product-image-preview" id="optionImagePreview"></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="optionDescription"></textarea></div>
+                
+                <div class="form-group">
+                    <label class="form-label">Customer Note (Visible in Frontend)</label>
+                    <textarea class="form-textarea" id="optionNote" placeholder="Enter a note for the user..."></textarea>
+                </div>
 
-                <div class="form-group"><label class="form-label">Recommended Quantity</label><input type="number"
-                        class="form-input" id="optionRecQty" min="0" value="0"></div>
-
-                <div class="form-group"><label class="form-label">Auto Add Quantity</label><input type="number"
-                        class="form-input" id="optionAutoAddQuantity" min="0" value="0"></div>
+                <div class="form-group"><label class="form-label">Price (USD)</label><input type="number" class="form-input" id="optionPriceUSD" step="0.01" min="0" required></div>
+                <div class="form-group"><label class="form-label">Price (GBP)</label><input type="number" class="form-input" id="optionPriceGBP" step="0.01" min="0" required></div>
+                <div class="form-group"><label class="form-label">Price (EUR)</label><input type="number" class="form-input" id="optionPriceEUR" step="0.01" min="0" required></div>
+                <div class="form-group"><label class="form-label">Display Order</label><input type="number" class="form-input" id="optionOrder" min="0" value="0"></div>
+                <div class="form-group"><label class="form-label">Recommended Quantity</label><input type="number" class="form-input" id="optionRecQty" min="0" value="0"></div>
+                <div class="form-group"><label class="form-label">Auto Add Quantity</label><input type="number" class="form-input" id="optionAutoAddQuantity" min="0" value="0"></div>
                 <button type="submit" class="submit-btn">Save Option</button>
             </form>
         </div>
@@ -801,7 +415,10 @@
         async function loadOptions() {
             try {
                 const response = await fetch(`${API_BASE}/options`); const options = await response.json(); const tbody = document.querySelector('#optionsTable tbody'); tbody.innerHTML = '';
-                options.forEach(o => { tbody.innerHTML += `<tr><td>${o.id}</td><td><img src="${o.image_url || 'https://via.placeholder.com/60?text=No+Image'}" class="product-image-thumbnail"></td><td>${o.category_name}</td><td>${o.name}</td><td>${o.product_code || ''}</td><td>$${parseFloat(o.price_usd).toFixed(2)}</td><td>£${parseFloat(o.price_gbp).toFixed(2)}</td><td>€${parseFloat(o.price_eur).toFixed(2)}</td><td><button class="action-btn" onclick="editOption(${o.id})">Edit</button><button class="action-btn delete" onclick="deleteOption(${o.id})">Delete</button></td></tr>`; });
+                options.forEach(o => { 
+                    const noteDisplay = o.note ? (o.note.length > 20 ? o.note.substring(0, 20) + '...' : o.note) : '-';
+                    tbody.innerHTML += `<tr><td>${o.id}</td><td><img src="${o.image_url || 'https://via.placeholder.com/60?text=No+Image'}" class="product-image-thumbnail"></td><td>${o.category_name}</td><td>${o.name}</td><td>${noteDisplay}</td><td>${o.product_code || ''}</td><td>$${parseFloat(o.price_usd).toFixed(2)}</td><td>£${parseFloat(o.price_gbp).toFixed(2)}</td><td>€${parseFloat(o.price_eur).toFixed(2)}</td><td><button class="action-btn" onclick="editOption(${o.id})">Edit</button><button class="action-btn delete" onclick="deleteOption(${o.id})">Delete</button></td></tr>`; 
+                });
             } catch (error) { console.error('Failed to load options:', error); }
         }
         async function loadOrders() {
@@ -814,9 +431,19 @@
         async function openProductModal(productId = null, data = null) {
             currentEditId = productId; document.getElementById('productForm').reset(); const modalTitle = document.querySelector('#productModal .modal-title'); const preview = document.getElementById('productImagePreview');
             if (productId && data) {
-                modalTitle.textContent = 'Edit Product'; document.getElementById('productName').value = data.name; document.getElementById('productDescription').value = data.description; document.getElementById('productPrice').value = data.base_price; document.getElementById('productImageUrl').value = data.image_url || '';
+                modalTitle.textContent = 'Edit Product'; 
+                // Using getElementById ensures we select the correct inputs
+                document.getElementById('productName').value = data.name; 
+                document.getElementById('productDescription').value = data.description; 
+                document.getElementById('productPrice').value = data.base_price; 
+                document.getElementById('productImageUrl').value = data.image_url || '';
                 preview.src = data.image_url || ''; preview.style.display = data.image_url ? 'block' : 'none';
-                document.getElementById('productCameraType').value = data.camera_type || 'Broadcast'; document.getElementById('productMakeModel').value = data.make_model || ''; document.getElementById('productLens').value = data.lens || ''; document.getElementById('productExternalLensMotors').value = data.external_lens_motors; document.getElementById('productPoweredRail').value = data.powered_rail; document.getElementById('productRemotePanTiltHead').value = data.remote_pan_tilt_head;
+                document.getElementById('productCameraType').value = data.camera_type || 'Broadcast'; 
+                document.getElementById('productMakeModel').value = data.make_model || ''; 
+                document.getElementById('productLens').value = data.lens || ''; 
+                document.getElementById('productExternalLensMotors').value = data.external_lens_motors; 
+                document.getElementById('productPoweredRail').value = data.powered_rail; 
+                document.getElementById('productRemotePanTiltHead').value = data.remote_pan_tilt_head;
             } else { modalTitle.textContent = 'Add Product'; preview.style.display = 'none'; }
             document.getElementById('productModal').style.display = 'flex';
         }
@@ -840,9 +467,18 @@
         async function openOptionModal(optionId = null, data = null) {
             currentEditId = optionId; document.getElementById('optionForm').reset(); const modalTitle = document.querySelector('#optionModal .modal-title'); const preview = document.getElementById('optionImagePreview'); await loadCategoriesForSelect();
             if (optionId && data) {
-                // UPDATED: Load Recommended Quantity
-                modalTitle.textContent = 'Edit Option'; document.getElementById('optionCategoryId').value = data.category_id; document.getElementById('optionName').value = data.name; document.getElementById('optionProductCode').value = data.product_code || ''; document.getElementById('optionDescription').value = data.description; document.getElementById('optionPriceUSD').value = data.price_usd; document.getElementById('optionPriceGBP').value = data.price_gbp; document.getElementById('optionPriceEUR').value = data.price_eur; document.getElementById('optionOrder').value = data.display_order; document.getElementById('optionAutoAddQuantity').value = data.auto_add_quantity || 0;
+                modalTitle.textContent = 'Edit Option'; 
+                document.getElementById('optionCategoryId').value = data.category_id; 
+                document.getElementById('optionName').value = data.name; 
+                document.getElementById('optionProductCode').value = data.product_code || ''; 
+                document.getElementById('optionDescription').value = data.description; 
+                document.getElementById('optionPriceUSD').value = data.price_usd; 
+                document.getElementById('optionPriceGBP').value = data.price_gbp; 
+                document.getElementById('optionPriceEUR').value = data.price_eur; 
+                document.getElementById('optionOrder').value = data.display_order; 
+                document.getElementById('optionAutoAddQuantity').value = data.auto_add_quantity || 0;
                 document.getElementById('optionRecQty').value = data.recommended_quantity || 0;
+                document.getElementById('optionNote').value = data.note || ''; 
                 document.getElementById('optionImageUrl').value = data.image_url || ''; preview.src = data.image_url || ''; preview.style.display = data.image_url ? 'block' : 'none';
             } else { modalTitle.textContent = 'Add Option'; preview.style.display = 'none'; }
             document.getElementById('optionModal').style.display = 'flex';
@@ -857,26 +493,63 @@
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 let formData;
+                
+                // Using document.getElementById ensures we get values correctly even if form.elements is tricky
                 if (entityType === 'product') {
-                    formData = { name: form.productName.value, description: form.productDescription.value, base_price: parseFloat(form.productPrice.value), image_url: form.productImageUrl.value, camera_type: form.productCameraType.value, make_model: form.productMakeModel.value, lens: form.productLens.value, external_lens_motors: form.productExternalLensMotors.value, powered_rail: form.productPoweredRail.value, remote_pan_tilt_head: form.productRemotePanTiltHead.value };
+                    formData = { 
+                        name: document.getElementById('productName').value, 
+                        description: document.getElementById('productDescription').value, 
+                        base_price: parseFloat(document.getElementById('productPrice').value) || 0, 
+                        image_url: document.getElementById('productImageUrl').value, 
+                        camera_type: document.getElementById('productCameraType').value, 
+                        make_model: document.getElementById('productMakeModel').value, 
+                        lens: document.getElementById('productLens').value, 
+                        external_lens_motors: document.getElementById('productExternalLensMotors').value, 
+                        powered_rail: document.getElementById('productPoweredRail').value, 
+                        remote_pan_tilt_head: document.getElementById('productRemotePanTiltHead').value 
+                    };
                 } else if (entityType === 'category') {
                     formData = {
-                        product_id: form.categoryProductId.value,
-                        name: form.categoryName.value,
-                        description: form.categoryDescription.value,
-                        display_order: form.categoryOrder.value,
-                        assigned_step: form.categoryStep.value
+                        product_id: document.getElementById('categoryProductId').value,
+                        name: document.getElementById('categoryName').value,
+                        description: document.getElementById('categoryDescription').value,
+                        display_order: parseInt(document.getElementById('categoryOrder').value) || 0,
+                        assigned_step: document.getElementById('categoryStep').value
                     };
                 } else {
-                    // UPDATED: Save Recommended Quantity
-                    formData = { category_id: form.optionCategoryId.value, name: form.optionName.value, product_code: form.optionProductCode.value, image_url: form.optionImageUrl.value, description: form.optionDescription.value, price_usd: parseFloat(form.optionPriceUSD.value), price_gbp: parseFloat(form.optionPriceGBP.value), price_eur: parseFloat(form.optionPriceEUR.value), inventory: 99999, display_order: parseInt(form.optionOrder.value), auto_add_quantity: parseInt(form.optionAutoAddQuantity.value), recommended_quantity: parseInt(form.optionRecQty.value) };
+                    // Option Form
+                    formData = { 
+                        category_id: document.getElementById('optionCategoryId').value, 
+                        name: document.getElementById('optionName').value, 
+                        product_code: document.getElementById('optionProductCode').value, 
+                        image_url: document.getElementById('optionImageUrl').value, 
+                        description: document.getElementById('optionDescription').value, 
+                        price_usd: parseFloat(document.getElementById('optionPriceUSD').value) || 0, 
+                        price_gbp: parseFloat(document.getElementById('optionPriceGBP').value) || 0, 
+                        price_eur: parseFloat(document.getElementById('optionPriceEUR').value) || 0, 
+                        inventory: 99999, 
+                        display_order: parseInt(document.getElementById('optionOrder').value) || 0, 
+                        auto_add_quantity: parseInt(document.getElementById('optionAutoAddQuantity').value) || 0, 
+                        recommended_quantity: parseInt(document.getElementById('optionRecQty').value) || 0,
+                        note: document.getElementById('optionNote').value 
+                    };
                 }
                 const method = currentEditId ? 'PUT' : 'POST'; const endpoint = entityType === 'category' ? 'categories' : `${entityType}s`; const url = currentEditId ? `${API_BASE}/${endpoint}/${currentEditId}` : `${API_BASE}/${endpoint}`;
                 try {
                     const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
                     const result = await response.json();
-                    if (result.success) { closeModal(`${entityType}Modal`); loadDataCallback(); loadDashboardStats(); }
-                } catch (error) { console.error(`Failed to save ${entityType}:`, error); }
+                    if (result.success) { 
+                        closeModal(`${entityType}Modal`); 
+                        loadDataCallback(); 
+                        loadDashboardStats(); 
+                    } else {
+                        // Added alert for failures
+                        alert('Error saving: ' + (result.message || 'Unknown error'));
+                    }
+                } catch (error) { 
+                    console.error(`Failed to save ${entityType}:`, error);
+                    alert(`Failed to save ${entityType}. Check console for details.\n\nIMPORTANT: Did you run the SQL command to add the 'note' column?`);
+                }
             });
         }
         handleFormSubmit('productForm', 'product', loadProducts); handleFormSubmit('categoryForm', 'category', loadCategories); handleFormSubmit('optionForm', 'option', loadOptions);
