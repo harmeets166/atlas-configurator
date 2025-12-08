@@ -734,7 +734,7 @@
         }
 
         .product-main-wrapper {
-            display: grid;
+            /* display: grid; */
             grid-template-columns: 40% 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
@@ -750,6 +750,7 @@
             justify-content: center;
             min-height: 300px;
             align-self: start;
+            display: none;
         }
 
         .product-image-container img {
@@ -931,14 +932,14 @@
             localStorage.setItem('splitCameraSoftware', JSON.stringify(softwareState));
         }
 
-        function loadStateFromLocalStorage() {
+function loadStateFromLocalStorage() {
             const savedBucket = localStorage.getItem('splitCameraBucket');
             const savedCurrency = localStorage.getItem('splitCameraCurrency');
             const savedLens = localStorage.getItem('splitCameraLensControl');
             const savedSoftware = localStorage.getItem('splitCameraSoftware');
             
             if (savedBucket) { bucket = JSON.parse(savedBucket); }
-            if (savedCurrency) { currentCurrency = savedCurrency; }
+            if (savedCurrency) { currentCurrency = savedCurrency; } // Just set variable, don't touch DOM
             if (savedLens) { lensControlState = JSON.parse(savedLens); }
             if (savedSoftware) { softwareState = JSON.parse(savedSoftware); }
         }
@@ -1004,223 +1005,220 @@
         // --- RENDERING ---
 
         function renderProduct() {
-            if (!productData) { 
-                document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>'; 
-                return; 
-            }
+                if (!productData) { 
+                    document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>'; 
+                    return; 
+                }
 
-            const imageContainer = document.getElementById('productImageContainer');
-            if (productData.image_url) { imageContainer.innerHTML = `<img src="${productData.image_url}" alt="${productData.name}">`; }
-            else { imageContainer.innerHTML = `<span class="no-image">No product image available.</span>`; }
+                const imageContainer = document.getElementById('productImageContainer');
+                if (productData.image_url) { imageContainer.innerHTML = `<img src="${productData.image_url}" alt="${productData.name}">`; }
+                else { imageContainer.innerHTML = `<span class="no-image">No product image available.</span>`; }
 
-            const detailsContainer = document.getElementById('productDetailsSection');
-            if (detailsContainer) {
+                const detailsContainer = document.getElementById('productDetailsSection');
+                if (detailsContainer) {
+                    const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
+                    const displayVal = (val) => { if (String(val) === '1') return 'Yes'; if (String(val) === '0') return 'No'; return val || ''; };
+
+                    let lensCheckboxesHtml = '';
+                    ['TILTA Nucleus-M kit', 'PD Movies LCS', 'TITLA LCS', 'FUJJI LCS', 'CANON LCS'].forEach(opt => {
+                        const isChecked = lensControlState[opt] ? 'checked' : '';
+                        lensCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleLensControlChange('${opt}', this.checked)">${opt}</label>`;
+                    });
+
+                    let softwareCheckboxesHtml = '';
+                    ['Slideye 2.0 Software', 'Dragonframe Compatibility'].forEach(opt => {
+                        const isChecked = softwareState[opt] ? 'checked' : '';
+                        softwareCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleSoftwareChange('${opt}', this.checked)">${opt}</label>`;
+                    });
+
+                    // Ensure a default is set if data is missing
+                    const currentCameraType = productData.camera_type || 'PTZ';
+
+                    detailsContainer.innerHTML = `
+                        <div class="product-details-container">
+                            <div class="config-section-title">Camera Information</div>
+                            <div class="product-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Camera Type</span>
+                                    <select class="detail-select" onchange="handleSelectionChange(this, 'camera_type')">
+                                        <option value="PTZ" ${currentCameraType === 'PTZ' ? 'selected' : ''}>PTZ</option>
+                                        <option value="Cine/Broadcast" ${currentCameraType === 'Cine/Broadcast' ? 'selected' : ''}>Cine/Broadcast</option>
+                                    </select>
+                                </div>
+                                <div class="detail-item"><span class="detail-label">Make / Model</span><input class="detail-input" type="text" value="${displayVal(productData.make_model)}" onchange="handleSelectionChange(this, 'make_model')"></div>
+                                <div class="detail-item"><span class="detail-label">Lens</span><input class="detail-input" type="text" value="${displayVal(productData.lens)}" onchange="handleSelectionChange(this, 'lens')"></div>
+                                <div class="detail-item"><span class="detail-label">Lens Configuration</span><input class="detail-input" type="text" value="${productData.lens_configuration || ''}" onchange="handleSelectionChange(this, 'lens_configuration')"></div>
+                                <div class="detail-item" style="grid-column: span 2;"><span class="detail-label">Lens Control</span><div class="checkbox-group-container">${lensCheckboxesHtml}</div></div>
+                                <div class="detail-item" style="grid-column: span 2;"><span class="detail-label">Software Option</span><div class="checkbox-group-container">${softwareCheckboxesHtml}</div></div>
+                            </div>
+                            <div class="config-section-title">Atlas Configuration</div>
+                            <div class="product-details">
+                                <div class="detail-item"><span class="detail-label">Power Option</span><select class="detail-select" onchange="handleSelectionChange(this, 'power_option')"><option value="" ${!productData.power_option ? 'selected' : ''}>Select...</option><option value="PSU" ${productData.power_option === 'PSU' ? 'selected' : ''}>PSU</option><option value="Battery PPU" ${productData.power_option === 'Battery PPU' ? 'selected' : ''}>Battery PPU</option><option value="None" ${productData.power_option === 'None' ? 'selected' : ''}>None</option></select></div>
+                                <div class="detail-item"><span class="detail-label">Cable Management System?</span><select class="detail-select" onchange="handleSelectionChange(this, 'cable_management')"><option value="Yes" ${isYes(productData.cable_management) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.cable_management) ? 'selected' : ''}>No</option></select></div>
+                                <div class="detail-item"><span class="detail-label">External Lens Motors Required</span><select class="detail-select" onchange="handleSelectionChange(this, 'external_lens_motors')"><option value="Yes" ${isYes(productData.external_lens_motors) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.external_lens_motors) ? 'selected' : ''}>No</option></select></div>
+                                <div class="detail-item"><span class="detail-label">Motorised Rail?</span><select class="detail-select" onchange="handleSelectionChange(this, 'powered_rail')"><option value="Yes" ${isYes(productData.powered_rail) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.powered_rail) ? 'selected' : ''}>No</option></select></div>
+                                <div class="detail-item"><span class="detail-label">Robotic Pan and Tilt Head?</span><select class="detail-select" onchange="handleSelectionChange(this, 'remote_pan_tilt_head')"><option value="Yes" ${isYes(productData.remote_pan_tilt_head) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.remote_pan_tilt_head) ? 'selected' : ''}>No</option></select></div>
+                                <div class="detail-item"><span class="detail-label">Currency</span><select class="detail-select" onchange="changeCurrency(this.value)"><option value="USD" ${currentCurrency === 'USD' ? 'selected' : ''}>USD ($)</option><option value="GBP" ${currentCurrency === 'GBP' ? 'selected' : ''}>GBP (£)</option><option value="EUR" ${currentCurrency === 'EUR' ? 'selected' : ''}>EUR (€)</option></select></div>
+                            </div>
+                        </div>`;
+                }
+
+                let html = '';
                 const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
-                const displayVal = (val) => { if (String(val) === '1') return 'Yes'; if (String(val) === '0') return 'No'; return val || ''; };
 
-                let lensCheckboxesHtml = '';
-                const lensOptions = ['TILTA Nucleus-M kit', 'PD Movies LCS', 'TITLA LCS', 'FUJJI LCS', 'CANON LCS'];
-                lensOptions.forEach(opt => {
-                    const isChecked = lensControlState[opt] ? 'checked' : '';
-                    lensCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleLensControlChange('${opt}', this.checked)">${opt}</label>`;
-                });
+                if (productData.categories && productData.categories.length > 0) {
+                    const categoriesByStep = {};
+                    productData.categories.forEach(category => {
+                        const step = parseInt(category.assigned_step) || 1;
+                        if (!categoriesByStep[step]) categoriesByStep[step] = [];
+                        categoriesByStep[step].push(category);
+                    });
 
-                let softwareCheckboxesHtml = '';
-                const softwareOptions = ['Slideye 2.0 Software', 'Dragonframe Compatibility'];
-                softwareOptions.forEach(opt => {
-                    const isChecked = softwareState[opt] ? 'checked' : '';
-                    softwareCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleSoftwareChange('${opt}', this.checked)">${opt}</label>`;
-                });
+                    for (let step = 1; step <= 9; step++) {
+                        const categoriesInStep = categoriesByStep[step];
+                        if (categoriesInStep && categoriesInStep.length > 0) {
+                            if (step === 1) html += `<div class="step-header">Step 1: ATLAS RAIL, DOLLY, MOTOR, POWER SUPPLY & BRACKETS</div>`;
+                            else if (step === 2) html += `<div class="step-header step-2">Step 2: ROBOTIC HEAD & LENS CONTROL</div>`;
+                            else if (step === 3) html += `<div class="step-header step-3">Step 3: CONTROLLERS, SOFTWARE & LICENSES</div>`;
+                            else if (step === 4) html += `<div class="step-header step-4">Step 4: ADDITIONAL CABLE PACKAGES</div>`;
+                            else if (step === 5) html += `<div class="step-header step-5">Step 5: ADDITIONAL ACCESSORIES</div>`;
+                            else if (step === 6) html += `<div class="step-header step-6">Step 6: ADDITIONAL ACCESSORIES</div>`;
+                            else if (step === 7) html += `<div class="step-header step-7">Step 7: LENS CONTROL</div>`;
+                            else if (step === 8) html += `<div class="step-header step-8">Step 8: PACKAGES</div>`;
+                            else if (step === 9) html += `<div class="step-header step-8">Step 9: OTHER</div>`;
 
-                detailsContainer.innerHTML = `
-                    <div class="product-details-container">
-                        <div class="config-section-title">Camera Information</div>
-                        <div class="product-details">
-                            <div class="detail-item"><span class="detail-label">Camera Type</span><input class="detail-input" type="text" value="${displayVal(productData.camera_type)}" onchange="handleSelectionChange(this, 'camera_type')"></div>
-                            <div class="detail-item"><span class="detail-label">Make / Model</span><input class="detail-input" type="text" value="${displayVal(productData.make_model)}" onchange="handleSelectionChange(this, 'make_model')"></div>
-                            <div class="detail-item"><span class="detail-label">Lens</span><input class="detail-input" type="text" value="${displayVal(productData.lens)}" onchange="handleSelectionChange(this, 'lens')"></div>
-                            <div class="detail-item"><span class="detail-label">Lens Configuration</span><input class="detail-input" type="text" value="${productData.lens_configuration || ''}" onchange="handleSelectionChange(this, 'lens_configuration')"></div>
-                            <div class="detail-item" style="grid-column: span 2;"><span class="detail-label">Lens Control</span><div class="checkbox-group-container">${lensCheckboxesHtml}</div></div>
-                            <div class="detail-item" style="grid-column: span 2;"><span class="detail-label">Software Option</span><div class="checkbox-group-container">${softwareCheckboxesHtml}</div></div>
-                        </div>
-                        <div class="config-section-title">Atlas Configuration</div>
-                        <div class="product-details">
-                            <div class="detail-item"><span class="detail-label">Power Option</span>
-                                <select class="detail-select" onchange="handleSelectionChange(this, 'power_option')">
-                                    <option value="" ${!productData.power_option ? 'selected' : ''}>Select...</option>
-                                    <option value="PSU" ${productData.power_option === 'PSU' ? 'selected' : ''}>PSU</option>
-                                    <option value="Battery PPU" ${productData.power_option === 'Battery PPU' ? 'selected' : ''}>Battery PPU</option>
-                                    <option value="None" ${productData.power_option === 'None' ? 'selected' : ''}>None</option>
-                                </select>
-                            </div>
-                            <div class="detail-item"><span class="detail-label">Cable Management System?</span><select class="detail-select" onchange="handleSelectionChange(this, 'cable_management')"><option value="Yes" ${isYes(productData.cable_management) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.cable_management) ? 'selected' : ''}>No</option></select></div>
-                            <div class="detail-item"><span class="detail-label">External Lens Motors Required</span><select class="detail-select" onchange="handleSelectionChange(this, 'external_lens_motors')"><option value="Yes" ${isYes(productData.external_lens_motors) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.external_lens_motors) ? 'selected' : ''}>No</option></select></div>
-                            <div class="detail-item"><span class="detail-label">Motorised Rail?</span><select class="detail-select" onchange="handleSelectionChange(this, 'powered_rail')"><option value="Yes" ${isYes(productData.powered_rail) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.powered_rail) ? 'selected' : ''}>No</option></select></div>
-                            <div class="detail-item"><span class="detail-label">Robotic Pan and Tilt Head?</span><select class="detail-select" onchange="handleSelectionChange(this, 'remote_pan_tilt_head')"><option value="Yes" ${isYes(productData.remote_pan_tilt_head) ? 'selected' : ''}>Yes</option><option value="No" ${!isYes(productData.remote_pan_tilt_head) ? 'selected' : ''}>No</option></select></div>
-                            <div class="detail-item">
-                                <span class="detail-label">Currency</span>
-                                <select class="detail-select" onchange="changeCurrency(this.value)">
-                                    <option value="USD" ${currentCurrency === 'USD' ? 'selected' : ''}>USD ($)</option>
-                                    <option value="GBP" ${currentCurrency === 'GBP' ? 'selected' : ''}>GBP (£)</option>
-                                    <option value="EUR" ${currentCurrency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>`;
-            }
+                            categoriesInStep.forEach(category => {
+                                if (category.options && category.options.length > 0) {
+                                    html += `<div class="option-category" data-category-step="${step}" data-category-name="${category.name}">`;
+                                    html += `<div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
 
-            let html = '';
-            const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
+                                    category.options.forEach(option => {
+                                        const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                                        const currentPrice = option[priceKey] || option.price_usd;
+                                        const symbol = currencySymbols[currentCurrency];
+                                        const inBucket = bucket.some(item => item.optionId === option.id);
+                                        const imageUrl = option.image_url ? option.image_url : 'https://via.placeholder.com/60?text=Opt';
+                                        const productCodeDisplay = option.product_code ? `<div class="sub-option-code">${option.product_code}</div>` : '';
+                                        const recQty = parseInt(option.recommended_quantity) || 0;
 
-            if (productData.categories && productData.categories.length > 0) {
-                const categoriesByStep = {};
-                productData.categories.forEach(category => {
-                    const step = parseInt(category.assigned_step) || 1;
-                    if (!categoriesByStep[step]) categoriesByStep[step] = [];
-                    categoriesByStep[step].push(category);
-                });
+                                        const noteHtml = option.note ? `<div class="sub-option-note"><i class="info-icon">ℹ</i> ${option.note}</div>` : '';
 
-                for (let step = 1; step <= 9; step++) {
-                    const categoriesInStep = categoriesByStep[step];
-                    if (categoriesInStep && categoriesInStep.length > 0) {
-                        if (step === 1) html += `<div class="step-header">Step 1: ATLAS RAIL, DOLLY, MOTOR, POWER SUPPLY & BRACKETS</div>`;
-                        else if (step === 2) html += `<div class="step-header step-2">Step 2: ROBOTIC HEAD & LENS CONTROL</div>`;
-                        else if (step === 3) html += `<div class="step-header step-3">Step 3: CONTROLLERS, SOFTWARE & LICENSES</div>`;
-                        else if (step === 4) html += `<div class="step-header step-4">Step 4: ADDITIONAL CABLE PACKAGES</div>`;
-                        else if (step === 5) html += `<div class="step-header step-5">Step 5: ADDITIONAL ACCESSORIES</div>`;
-                        else if (step === 6) html += `<div class="step-header step-6">Step 6: ADDITIONAL ACCESSORIES</div>`;
-                        else if (step === 7) html += `<div class="step-header step-7">Step 7: LENS CONTROL</div>`;
-                        else if (step === 8) html += `<div class="step-header step-8">Step 8: PACKAGES</div>`;
-                        else if (step === 9) html += `<div class="step-header step-8">Step 9: OTHER</div>`;
-
-                        categoriesInStep.forEach(category => {
-                            if (category.options && category.options.length > 0) {
-                                html += `<div class="option-category" data-category-step="${step}" data-category-name="${category.name}">`;
-                                html += `<div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
-
-                                category.options.forEach(option => {
-                                    const priceKey = `price_${currentCurrency.toLowerCase()}`;
-                                    const currentPrice = option[priceKey] || option.price_usd;
-                                    const symbol = currencySymbols[currentCurrency];
-                                    const inBucket = bucket.some(item => item.optionId === option.id);
-                                    const imageUrl = option.image_url ? option.image_url : 'https://via.placeholder.com/60?text=Opt';
-                                    const productCodeDisplay = option.product_code ? `<div class="sub-option-code">${option.product_code}</div>` : '';
-                                    const recQty = parseInt(option.recommended_quantity) || 0;
-
-                                    const noteHtml = option.note ? `<div class="sub-option-note"><i class="info-icon">ℹ</i> ${option.note}</div>` : '';
-
-                                    html += `<div class="sub-option" data-option-id="${option.id}" data-option-name="${option.name}">
-                                            <div class="sub-option-info">
-                                                <div class="sub-option-image-container" onclick="openLightbox('${imageUrl}')"><img src="${imageUrl}" alt="${option.name}" class="sub-option-image"></div>
-                                                <div>
-                                                    <div class="sub-option-name">${option.name}</div>
-                                                    ${productCodeDisplay}
-                                                    ${option.description ? `<div class="sub-option-description">${option.description}</div>` : ''}
-                                                    ${noteHtml}
+                                        html += `<div class="sub-option" data-option-id="${option.id}" data-option-name="${option.name}">
+                                                <div class="sub-option-info">
+                                                    <div class="sub-option-image-container" onclick="openLightbox('${imageUrl}')"><img src="${imageUrl}" alt="${option.name}" class="sub-option-image"></div>
+                                                    <div>
+                                                        <div class="sub-option-name">${option.name}</div>
+                                                        ${productCodeDisplay}
+                                                        ${option.description ? `<div class="sub-option-description">${option.description}</div>` : ''}
+                                                        ${noteHtml}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div>
-                                            <div class="sub-option-controls">`;
+                                                <div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div>
+                                                <div class="sub-option-controls">`;
 
-                                    // --- 1. MOTORS ---
-                                    if (step === 1 && category.name.toLowerCase().includes('motor')) {
-                                        const isStepper = option.name.toLowerCase().includes('stepper');
-                                        const isMotorisedRail = isYes(productData.powered_rail);
-                                        if (isMotorisedRail) {
-                                            if (isStepper) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                            else { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                        } else {
-                                            html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                        }
-                                    }
-                                    // --- 2. DOLLY (Removed Logic - Standard Select) ---
-                                    else if (step === 1 && category.name.toLowerCase().includes('dolly')) {
-                                        html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                    }
-                                    // --- 3. POWER SUPPLY ---
-                                    else if (step === 1 && category.name.toLowerCase().includes('power')) {
-                                        const powerOpt = productData.power_option;
-                                        const name = option.name.toLowerCase();
-                                        const isPSU = name.includes('psu320e');
-                                        const isVMount = name.includes('v-mount') && name.includes('ppu');
-                                        const isBMount = name.includes('b-mount') && name.includes('ppu');
-
-                                        if (powerOpt === 'PSU' && isPSU) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                        else if (powerOpt === 'Battery PPU' && (isVMount || isBMount)) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                        else if ((powerOpt === 'PSU' && (isVMount || isBMount)) || (powerOpt === 'Battery PPU' && isPSU) || (powerOpt === 'None' && (isPSU || isVMount || isBMount))) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                        else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
-                                    }
-                                    // --- 4. BRACKETS ---
-                                    else if (step === 1 && category.name.toLowerCase().includes('bracket')) {
-                                        const isMotorisedRail = isYes(productData.powered_rail);
-                                        const isPneumatic = option.name.toLowerCase().includes('pneumatic');
-                                        const isStandard = option.name.toLowerCase().includes('standard');
-                                        if (isMotorisedRail) {
-                                            if (isPneumatic) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                            else if (isStandard) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                            else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
-                                        } else {
-                                            html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                        }
-                                    }
-                                    // --- 5. CABLE MANAGEMENT & STEP 2 CHECKBOXES ---
-                                    else if ((step === 1 && category.name.toLowerCase().includes('cable management')) || step === 2) {
-                                        const isChecked = inBucket ? 'checked' : '';
-                                        html += `<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-primary);"><input type="checkbox" onchange="handleCheckboxSelection(this, ${option.id})" ${isChecked} style="width: 20px; height: 20px; accent-color: var(--color-success);"> Select</label>`;
-                                    }
-                                    // --- 6. DEFAULT ---
-                                    else if (step !== 1) {
-                                        const isManagedSoftwareItem = 
-                                            option.name.toLowerCase().includes('slideye 2.0 software') || 
-                                            option.name.toLowerCase().includes('ptz license code') ||
-                                            option.name.toLowerCase().includes('dragonframe license code');
-
-                                        const slideyeChecked = softwareState['Slideye 2.0 Software'];
-                                        const dragonframeChecked = softwareState['Dragonframe Compatibility'];
-                                        
-                                        let isLocked = false;
-                                        if (isManagedSoftwareItem && (slideyeChecked || dragonframeChecked)) {
-                                            if (option.name.toLowerCase().includes('dragonframe') && !dragonframeChecked) {
-                                                isLocked = false;
+                                        // --- 1. MOTORS ---
+                                        if (step === 1 && category.name.toLowerCase().includes('motor')) {
+                                            const isStepper = option.name.toLowerCase().includes('stepper');
+                                            const isMotorisedRail = isYes(productData.powered_rail);
+                                            if (isMotorisedRail) {
+                                                if (isStepper) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                                else { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
                                             } else {
-                                                isLocked = true;
+                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
                                             }
                                         }
-
-                                        if (isLocked) {
-                                             html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`;
-                                        } else {
-                                             html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                        // --- 2. DOLLY (Removed Logic - Standard Select) ---
+                                        else if (step === 1 && category.name.toLowerCase().includes('dolly')) {
+                                            html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
                                         }
-                                    } else {
-                                        if (recQty > 0) { html += `<div class="recommended-qty-badge"><span>Rec.</span>${recQty}</div>`; }
-                                        let qtyOptions = '';
-                                        for (let i = 1; i <= 10; i++) { qtyOptions += `<option value="${i}">${i}</option>`; }
-                                        html += `<select class="quantity-select">${qtyOptions}</select><button class="add-btn">Add</button>`;
-                                    }
+                                        // --- 3. POWER SUPPLY ---
+                                        else if (step === 1 && category.name.toLowerCase().includes('power')) {
+                                            const powerOpt = productData.power_option;
+                                            const name = option.name.toLowerCase();
+                                            const isPSU = name.includes('psu320e');
+                                            const isVMount = name.includes('v-mount') && name.includes('ppu');
+                                            const isBMount = name.includes('b-mount') && name.includes('ppu');
+
+                                            if (powerOpt === 'PSU' && isPSU) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                            else if (powerOpt === 'Battery PPU' && (isVMount || isBMount)) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                            else if ((powerOpt === 'PSU' && (isVMount || isBMount)) || (powerOpt === 'Battery PPU' && isPSU) || (powerOpt === 'None' && (isPSU || isVMount || isBMount))) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                            else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
+                                        }
+                                        // --- 4. BRACKETS ---
+                                        else if (step === 1 && category.name.toLowerCase().includes('bracket')) {
+                                            const isMotorisedRail = isYes(productData.powered_rail);
+                                            const isPneumatic = option.name.toLowerCase().includes('pneumatic');
+                                            const isStandard = option.name.toLowerCase().includes('standard');
+                                            if (isMotorisedRail) {
+                                                if (isPneumatic) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                                else if (isStandard) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                                else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
+                                            } else {
+                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                            }
+                                        }
+                                        // --- 5. CABLE MANAGEMENT & STEP 2 CHECKBOXES ---
+                                        else if ((step === 1 && category.name.toLowerCase().includes('cable management')) || step === 2) {
+                                            const isChecked = inBucket ? 'checked' : '';
+                                            html += `<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-primary);"><input type="checkbox" onchange="handleCheckboxSelection(this, ${option.id})" ${isChecked} style="width: 20px; height: 20px; accent-color: var(--color-success);"> Select</label>`;
+                                        }
+                                        // --- 6. DEFAULT ---
+                                        else if (step !== 1) {
+                                            const isManagedSoftwareItem = 
+                                                option.name.toLowerCase().includes('slideye 2.0 software') || 
+                                                option.name.toLowerCase().includes('ptz license code') ||
+                                                option.name.toLowerCase().includes('dragonframe license code');
+
+                                            const slideyeChecked = softwareState['Slideye 2.0 Software'];
+                                            const dragonframeChecked = softwareState['Dragonframe Compatibility'];
+                                            
+                                            let isLocked = false;
+                                            if (isManagedSoftwareItem && (slideyeChecked || dragonframeChecked)) {
+                                                if (option.name.toLowerCase().includes('dragonframe') && !dragonframeChecked) {
+                                                    isLocked = false;
+                                                } else {
+                                                    isLocked = true;
+                                                }
+                                            }
+
+                                            if (isLocked) {
+                                                html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`;
+                                            } else {
+                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                            }
+                                        } else {
+                                            if (recQty > 0) { html += `<div class="recommended-qty-badge"><span>Rec.</span>${recQty}</div>`; }
+                                            let qtyOptions = '';
+                                            // Standard Item Quantity Logic (0 to 10)
+                                            let qty = inBucket ? bucket.find(b=>b.optionId===option.id).quantity : 0;
+                                            for (let i = 0; i <= 10; i++) { qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i}</option>`; }
+                                            
+                                            if (inBucket) html += `<select class="quantity-select">${qtyOptions}</select><button class="remove-btn">Remove</button>`;
+                                            else html += `<select class="quantity-select">${qtyOptions}</select><button class="add-btn">Add</button>`;
+                                        }
+                                        html += `</div></div>`;
+                                    });
                                     html += `</div></div>`;
-                                });
-                                html += `</div></div>`;
 
-                                // ADDED: Specific Logic to Move Rail Totals Here
-                                if (step === 1 && category.name.toLowerCase().includes('rail')) {
-                                     html += `<div class="rail-totals-main-display rail-totals-main"></div>`;
+                                    // ADDED: Specific Logic to Move Rail Totals Here
+                                    if (step === 1 && category.name.toLowerCase().includes('rail')) {
+                                        html += `<div class="rail-totals-main-display rail-totals-main"></div>`;
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-            } else { html = '<div class="error">No configuration options available for this product.</div>'; }
+                } else { html = '<div class="error">No configuration options available for this product.</div>'; }
 
-            document.getElementById('productContent').innerHTML = html;
-            updateAllSubOptionDisplays();
-            addEventListenersToOptions();
-            updateMainRailTotals();
-        }
+                document.getElementById('productContent').innerHTML = html;
+                updateAllSubOptionDisplays();
+                addEventListenersToOptions();
+                updateMainRailTotals();
+            }
 
         // --- RULES ENFORCEMENT ---
 
-        function enforceConfigurationRules() {
+    function enforceConfigurationRules() {
             if (!productData || !productData.categories) return;
 
             const isMotorisedRail = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
@@ -1237,10 +1235,37 @@
             const slideyeChecked = softwareState['Slideye 2.0 Software'];
             const dragonframeChecked = softwareState['Dragonframe Compatibility'];
 
+            // 1. Calculate Total Rail Length for Logic Checking
+            let totalRailLength = 0;
+            bucket.forEach(item => {
+                const opt = findOptionById(item.optionId);
+                if (opt) {
+                    const name = opt.name.toLowerCase();
+                    // Identify Rails (exclude dollies/cables)
+                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable') && !name.includes('bracket')) {
+                        const match = name.match(/(\d+(\.\d+)?)\s*m/);
+                        if (match) {
+                            totalRailLength += parseFloat(match[1]) * item.quantity;
+                        }
+                    }
+                }
+            });
+
             productData.categories.forEach(cat => {
                 cat.options.forEach(opt => {
                     const nameLower = opt.name.toLowerCase();
                     const inBucketIndex = bucket.findIndex(b => b.optionId === opt.id);
+
+                    // --- RAIL LENGTH LOGIC (NEW) ---
+                    // If Length > 6m, Auto-Add "Atlas Rail Extended Dolly"
+                    if (totalRailLength > 6) {
+                        if (nameLower.includes('atlas') && nameLower.includes('extended dolly')) {
+                            // If not in bucket, add it
+                            if (inBucketIndex === -1) {
+                                bucket.push({ optionId: opt.id, quantity: 1 });
+                            }
+                        }
+                    }
 
                     // --- LENS CONTROL LOGIC ---
                     for (const [ctrlKey, targetPhrase] of Object.entries(lensMapping)) {
@@ -1322,22 +1347,49 @@
 
         // --- UTILS ---
 
-        function addEventListenersToOptions() {
-            document.querySelectorAll('.sub-option button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const subOption = e.target.closest('.sub-option');
-                    const optionId = parseInt(subOption.dataset.optionId);
-                    const isInBucket = bucket.some(item => item.optionId === optionId);
-                    if (isInBucket) { removeFromBucket(bucket.findIndex(item => item.optionId === optionId)); } else { addToBucket(e.target); }
+ function addEventListenersToOptions() {
+            // 1. Handle Add/Remove Buttons
+            document.querySelectorAll('.add-btn, .remove-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    const div = e.target.closest('.sub-option');
+                    const id = parseInt(div.dataset.optionId);
+                    const qty = parseInt(div.querySelector('.quantity-select').value);
+                    const idx = bucket.findIndex(b => b.optionId === id);
+                    
+                    if (idx > -1) bucket.splice(idx, 1); 
+                    else bucket.push({optionId: id, quantity: qty});
+                    
+                    updateBucketDisplay(); renderProduct(); saveStateToLocalStorage(); updateMainRailTotals();
                 });
             });
-            document.querySelectorAll('.quantity-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const subOption = e.target.closest('.sub-option');
-                    const optionId = parseInt(subOption.dataset.optionId);
-                    const itemInBucket = bucket.find(item => item.optionId === optionId);
-                    if (itemInBucket) { itemInBucket.quantity = parseInt(e.target.value); updateBucketDisplay(); saveStateToLocalStorage(); }
-                    updateMainRailTotals();
+
+            // 2. Handle Live Quantity Changes
+            document.querySelectorAll('.quantity-select').forEach(sel => {
+                sel.addEventListener('change', e => {
+                    const div = e.target.closest('.sub-option');
+                    const id = parseInt(div.dataset.optionId);
+                    const qty = parseInt(e.target.value);
+                    const name = div.querySelector('.sub-option-name').innerText.toLowerCase();
+
+                    // LIVE LOGIC: If it's a Rail, auto-update the bucket immediately
+                    // This forces the "Total Rail Length" to update instantly
+                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('cable')) {
+                        const idx = bucket.findIndex(b => b.optionId === id);
+                        if (idx > -1) {
+                            bucket[idx].quantity = qty;
+                        } else {
+                            bucket.push({optionId: id, quantity: qty});
+                        }
+                        // Refresh everything immediately
+                        updateBucketDisplay(); saveStateToLocalStorage(); updateMainRailTotals(); renderProduct();
+                    } else {
+                        // For non-rail items, just update the bucket if it's already added
+                        const item = bucket.find(b => b.optionId === id);
+                        if (item) {
+                            item.quantity = qty;
+                            updateBucketDisplay(); saveStateToLocalStorage();
+                        }
+                    }
                 });
             });
         }
@@ -1359,37 +1411,114 @@
             updateBucketDisplay();
             saveStateToLocalStorage();
         }
-
-        function updateMainRailTotals() {
+function updateMainRailTotals() {
             const displayContainers = document.querySelectorAll('.rail-totals-main-display');
             if (displayContainers.length === 0) return;
+
             let totalRailLength = 0;
-            if (productData && productData.categories) {
-                productData.categories.forEach(cat => {
-                    if (parseInt(cat.assigned_step) === 1) {
-                        cat.options.forEach(opt => {
-                            const bucketItem = bucket.find(b => b.optionId === opt.id);
-                            if (bucketItem) {
-                                const match = opt.name.match(/(\d+(\.\d+)?)\s*m/i);
-                                const length = match ? parseFloat(match[1]) : 0;
-                                if (length > 0) totalRailLength += length * bucketItem.quantity;
-                            }
-                        });
+
+            bucket.forEach(item => {
+                const option = findOptionById(item.optionId);
+                if (option) {
+                    const name = option.name.toLowerCase();
+                    // STRICT CHECK: Atlas Rail only
+                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable')) {
+                        const match = name.match(/(\d+(\.\d+)?)\s*m/);
+                        if (match) {
+                            totalRailLength += parseFloat(match[1]) * item.quantity;
+                        }
                     }
-                });
+                }
+            });
+
+            // Motorised Belt Logic
+            let totalBeltLength = 0;
+            const isMotorized = productData.powered_rail && (productData.powered_rail.toString().toLowerCase() === 'yes' || productData.powered_rail == '1');
+            
+            if (isMotorized && totalRailLength > 0) {
+                totalBeltLength = totalRailLength + 0.2;
             }
-            const totalToothedBelt = totalRailLength > 0 ? totalRailLength + 1 : 0;
+
             displayContainers.forEach(container => {
-                container.innerHTML = `<div class="rail-total-item"><span class="label">Total Rail Length:</span><span class="value">${totalRailLength.toFixed(1)} Meters</span></div><div class="rail-total-item"><span class="label">Total Rail Toothed Belt:</span><span class="value">${totalToothedBelt.toFixed(1)} Meters</span></div>`;
+                container.innerHTML = `
+                    <div class="rail-total-item"><span class="label">Total Rail Length:</span><span class="value">${totalRailLength.toFixed(1)} Meters</span></div>
+                    <div class="rail-total-item"><span class="label">Total ATLAS Rail Teethbelt:</span><span class="value">${totalBeltLength.toFixed(1)} Meters</span></div>`;
             });
         }
 
-        function addToBucket(button) {
+function addToBucket(button) {
             const subOption = button.closest('.sub-option');
             const optionId = parseInt(subOption.dataset.optionId);
             const quantity = parseInt(subOption.querySelector('.quantity-select').value);
+            
             bucket.push({ optionId, quantity });
-            updateBucketDisplay(); updateSubOptionDisplay(optionId, true); saveStateToLocalStorage();
+            
+            updateBucketDisplay(); 
+            updateSubOptionDisplay(optionId, true); 
+            saveStateToLocalStorage();
+            updateMainRailTotals(); // <--- THIS WAS MISSING
+        }
+
+        function removeFromBucket(index) {
+            const removedItem = bucket.splice(index, 1)[0];
+            
+            updateBucketDisplay();
+            if (removedItem) { updateSubOptionDisplay(removedItem.optionId, false); }
+            saveStateToLocalStorage();
+            updateMainRailTotals(); // <--- THIS WAS MISSING
+        }
+
+        // Also update the listener for when quantity changes
+function updateMainRailTotals() {
+            const displayContainers = document.querySelectorAll('.rail-totals-main-display');
+            if (displayContainers.length === 0) return;
+
+            let totalRailLength = 0;
+
+            // 1. Calculate Total Rail Length from Bucket
+            bucket.forEach(item => {
+                const option = findOptionById(item.optionId);
+                if (option) {
+                    const name = option.name.toLowerCase();
+                    // STRICT CHECK: Must be "Atlas Rail" and NOT a dolly, cable, or adapter
+                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable') && !name.includes('bracket')) {
+                        
+                        // Extract number before 'm' (e.g. 0.8, 1.5, 2)
+                        const match = name.match(/(\d+(\.\d+)?)\s*m/);
+                        if (match) {
+                            const length = parseFloat(match[1]);
+                            totalRailLength += length * item.quantity;
+                        }
+                    }
+                }
+            });
+
+            // 2. Calculate Teethbelt Logic
+            let totalBeltLength = 0;
+            
+            // Check if Motorised Rail is set to Yes (handles "Yes", "1", or true)
+            const isMotorized = productData.powered_rail && (productData.powered_rail.toString().toLowerCase() === 'yes' || productData.powered_rail == '1');
+
+            if (isMotorized && totalRailLength > 0) {
+                // Logic: Rail Length + 0.2m
+                totalBeltLength = totalRailLength + 0.2;
+            } else {
+                // If not motorised, no belt needed (or logic not specified, assuming 0)
+                totalBeltLength = 0;
+            }
+
+            // 3. Update Display
+            displayContainers.forEach(container => {
+                container.innerHTML = `
+                    <div class="rail-total-item">
+                        <span class="label">Total Rail Length:</span>
+                        <span class="value">${totalRailLength.toFixed(1)} Meters</span>
+                    </div>
+                    <div class="rail-total-item">
+                        <span class="label">Total ATLAS Rail Teethbelt:</span>
+                        <span class="value">${totalBeltLength.toFixed(1)} Meters</span>
+                    </div>`;
+            });
         }
 
         function removeFromBucket(index) {
