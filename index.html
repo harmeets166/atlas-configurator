@@ -913,9 +913,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script>
         // --- GLOBAL STATE ---
-        let bucket = []; 
-        let totalAmount = 0; 
-        let productData = null; 
+        let bucket = [];
+        let totalAmount = 0;
+        let productData = null;
         let currentCurrency = 'USD';
         const currencySymbols = { USD: '$', GBP: '£', EUR: '€' };
         const API_BASE = 'api.php?endpoint';
@@ -932,30 +932,30 @@
             localStorage.setItem('splitCameraSoftware', JSON.stringify(softwareState));
         }
 
-function loadStateFromLocalStorage() {
+        function loadStateFromLocalStorage() {
             const savedBucket = localStorage.getItem('splitCameraBucket');
             const savedCurrency = localStorage.getItem('splitCameraCurrency');
             const savedLens = localStorage.getItem('splitCameraLensControl');
             const savedSoftware = localStorage.getItem('splitCameraSoftware');
-            
+
             if (savedBucket) { bucket = JSON.parse(savedBucket); }
             if (savedCurrency) { currentCurrency = savedCurrency; } // Just set variable, don't touch DOM
             if (savedLens) { lensControlState = JSON.parse(savedLens); }
             if (savedSoftware) { softwareState = JSON.parse(savedSoftware); }
         }
 
-        document.addEventListener('DOMContentLoaded', () => { 
-            loadStateFromLocalStorage(); 
-            loadProduct(); 
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStateFromLocalStorage();
+            loadProduct();
         });
 
         // --- CORE FUNCTIONS ---
 
-        function changeCurrency(newCurrency) { 
-            currentCurrency = newCurrency; 
-            renderProduct(); 
-            updateBucketDisplay(); 
-            saveStateToLocalStorage(); 
+        function changeCurrency(newCurrency) {
+            currentCurrency = newCurrency;
+            renderProduct();
+            updateBucketDisplay();
+            saveStateToLocalStorage();
         }
 
         async function loadProduct() {
@@ -963,7 +963,7 @@ function loadStateFromLocalStorage() {
                 const response = await fetch(`${API_BASE}=/products/1`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 productData = await response.json();
-                
+
                 // Initial Rule Enforcement
                 enforceConfigurationRules();
                 renderProduct();
@@ -975,8 +975,8 @@ function loadStateFromLocalStorage() {
         }
 
         // --- EVENT HANDLERS ---
-        
-        window.handleLensControlChange = function(optionName, isChecked) {
+
+        window.handleLensControlChange = function (optionName, isChecked) {
             lensControlState[optionName] = isChecked;
             enforceConfigurationRules(); // Apply logic
             renderProduct();             // Refresh UI
@@ -984,7 +984,7 @@ function loadStateFromLocalStorage() {
             saveStateToLocalStorage();
         }
 
-        window.handleSoftwareChange = function(optionName, isChecked) {
+        window.handleSoftwareChange = function (optionName, isChecked) {
             softwareState[optionName] = isChecked;
             enforceConfigurationRules(); // Apply logic
             renderProduct();             // Refresh UI
@@ -993,48 +993,48 @@ function loadStateFromLocalStorage() {
         }
 
         function handleSelectionChange(selectElement, property) {
-            if (productData && property) { 
-                productData[property] = selectElement.value; 
+            if (productData && property) {
+                productData[property] = selectElement.value;
             }
             enforceConfigurationRules();
-            renderProduct(); 
-            updateBucketDisplay(); 
+            renderProduct();
+            updateBucketDisplay();
             saveStateToLocalStorage();
         }
 
         // --- RENDERING ---
 
         function renderProduct() {
-                if (!productData) { 
-                    document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>'; 
-                    return; 
-                }
+            if (!productData) {
+                document.getElementById('productContent').innerHTML = '<div class="error">No configuration options available.</div>';
+                return;
+            }
 
-                const imageContainer = document.getElementById('productImageContainer');
-                if (productData.image_url) { imageContainer.innerHTML = `<img src="${productData.image_url}" alt="${productData.name}">`; }
-                else { imageContainer.innerHTML = `<span class="no-image">No product image available.</span>`; }
+            const imageContainer = document.getElementById('productImageContainer');
+            if (productData.image_url) { imageContainer.innerHTML = `<img src="${productData.image_url}" alt="${productData.name}">`; }
+            else { imageContainer.innerHTML = `<span class="no-image">No product image available.</span>`; }
 
-                const detailsContainer = document.getElementById('productDetailsSection');
-                if (detailsContainer) {
-                    const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
-                    const displayVal = (val) => { if (String(val) === '1') return 'Yes'; if (String(val) === '0') return 'No'; return val || ''; };
+            const detailsContainer = document.getElementById('productDetailsSection');
+            if (detailsContainer) {
+                const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
+                const displayVal = (val) => { if (String(val) === '1') return 'Yes'; if (String(val) === '0') return 'No'; return val || ''; };
 
-                    let lensCheckboxesHtml = '';
-                    ['TILTA Nucleus-M kit', 'PD Movies LCS', 'TITLA LCS', 'FUJJI LCS', 'CANON LCS'].forEach(opt => {
-                        const isChecked = lensControlState[opt] ? 'checked' : '';
-                        lensCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleLensControlChange('${opt}', this.checked)">${opt}</label>`;
-                    });
+                let lensCheckboxesHtml = '';
+                ['TILTA Nucleus-M kit', 'PD Movies LCS', 'TITLA LCS', 'FUJJI LCS', 'CANON LCS'].forEach(opt => {
+                    const isChecked = lensControlState[opt] ? 'checked' : '';
+                    lensCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleLensControlChange('${opt}', this.checked)">${opt}</label>`;
+                });
 
-                    let softwareCheckboxesHtml = '';
-                    ['Slideye 2.0 Software', 'Dragonframe Compatibility'].forEach(opt => {
-                        const isChecked = softwareState[opt] ? 'checked' : '';
-                        softwareCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleSoftwareChange('${opt}', this.checked)">${opt}</label>`;
-                    });
+                let softwareCheckboxesHtml = '';
+                ['Slideye 2.0 Software', 'Dragonframe Compatibility'].forEach(opt => {
+                    const isChecked = softwareState[opt] ? 'checked' : '';
+                    softwareCheckboxesHtml += `<label class="checkbox-label"><input type="checkbox" ${isChecked} onchange="window.handleSoftwareChange('${opt}', this.checked)">${opt}</label>`;
+                });
 
-                    // Ensure a default is set if data is missing
-                    const currentCameraType = productData.camera_type || 'PTZ';
+                // Ensure a default is set if data is missing
+                const currentCameraType = productData.camera_type || 'PTZ';
 
-                    detailsContainer.innerHTML = `
+                detailsContainer.innerHTML = `
                         <div class="product-details-container">
                             <div class="config-section-title">Camera Information</div>
                             <div class="product-details">
@@ -1061,49 +1061,51 @@ function loadStateFromLocalStorage() {
                                 <div class="detail-item"><span class="detail-label">Currency</span><select class="detail-select" onchange="changeCurrency(this.value)"><option value="USD" ${currentCurrency === 'USD' ? 'selected' : ''}>USD ($)</option><option value="GBP" ${currentCurrency === 'GBP' ? 'selected' : ''}>GBP (£)</option><option value="EUR" ${currentCurrency === 'EUR' ? 'selected' : ''}>EUR (€)</option></select></div>
                             </div>
                         </div>`;
-                }
+            }
 
-                let html = '';
-                const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
+            let html = '';
+            const isYes = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
 
-                if (productData.categories && productData.categories.length > 0) {
-                    const categoriesByStep = {};
-                    productData.categories.forEach(category => {
-                        const step = parseInt(category.assigned_step) || 1;
-                        if (!categoriesByStep[step]) categoriesByStep[step] = [];
-                        categoriesByStep[step].push(category);
-                    });
+            if (productData.categories && productData.categories.length > 0) {
+                const categoriesByStep = {};
+                productData.categories.forEach(category => {
+                    const step = parseInt(category.assigned_step) || 1;
+                    if (!categoriesByStep[step]) categoriesByStep[step] = [];
+                    categoriesByStep[step].push(category);
+                });
 
-                    for (let step = 1; step <= 9; step++) {
-                        const categoriesInStep = categoriesByStep[step];
-                        if (categoriesInStep && categoriesInStep.length > 0) {
-                            if (step === 1) html += `<div class="step-header">Step 1: ATLAS RAIL, DOLLY, MOTOR, POWER SUPPLY & BRACKETS</div>`;
-                            else if (step === 2) html += `<div class="step-header step-2">Step 2: ROBOTIC HEAD & LENS CONTROL</div>`;
-                            else if (step === 3) html += `<div class="step-header step-3">Step 3: CONTROLLERS, SOFTWARE & LICENSES</div>`;
-                            else if (step === 4) html += `<div class="step-header step-4">Step 4: ADDITIONAL CABLE PACKAGES</div>`;
-                            else if (step === 5) html += `<div class="step-header step-5">Step 5: ADDITIONAL ACCESSORIES</div>`;
-                            else if (step === 6) html += `<div class="step-header step-6">Step 6: ADDITIONAL ACCESSORIES</div>`;
-                            else if (step === 7) html += `<div class="step-header step-7">Step 7: LENS CONTROL</div>`;
-                            else if (step === 8) html += `<div class="step-header step-8">Step 8: PACKAGES</div>`;
-                            else if (step === 9) html += `<div class="step-header step-8">Step 9: OTHER</div>`;
+                for (let step = 1; step <= 9; step++) {
+                    const categoriesInStep = categoriesByStep[step];
+                    if (categoriesInStep && categoriesInStep.length > 0) {
+                        if (step === 1) html += `<div class="step-header">Step 1: ATLAS RAIL, DOLLY, MOTOR, POWER SUPPLY & BRACKETS</div>`;
+                        else if (step === 2) html += `<div class="step-header step-2">Step 2: ROBOTIC HEAD & LENS CONTROL</div>`;
+                        else if (step === 3) html += `<div class="step-header step-3">Step 3: CONTROLLERS, SOFTWARE & LICENSES</div>`;
+                        else if (step === 4) html += `<div class="step-header step-4">Step 4: ADDITIONAL CABLE PACKAGES</div>`;
+                        else if (step === 5) html += `<div class="step-header step-5">Step 5: ADDITIONAL ACCESSORIES</div>`;
+                        else if (step === 6) html += `<div class="step-header step-6">Step 6: ADDITIONAL ACCESSORIES</div>`;
+                        else if (step === 7) html += `<div class="step-header step-7">Step 7: LENS CONTROL</div>`;
+                        else if (step === 8) html += `<div class="step-header step-8">Step 8: PACKAGES</div>`;
+                        else if (step === 9) html += `<div class="step-header step-8">Step 9: OTHER</div>`;
 
-                            categoriesInStep.forEach(category => {
-                                if (category.options && category.options.length > 0) {
-                                    html += `<div class="option-category" data-category-step="${step}" data-category-name="${category.name}">`;
-                                    html += `<div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
+                        let railTotalsRendered = false; // Flag to prevent duplicate rail totals
 
-                                    category.options.forEach(option => {
-                                        const priceKey = `price_${currentCurrency.toLowerCase()}`;
-                                        const currentPrice = option[priceKey] || option.price_usd;
-                                        const symbol = currencySymbols[currentCurrency];
-                                        const inBucket = bucket.some(item => item.optionId === option.id);
-                                        const imageUrl = option.image_url ? option.image_url : 'https://via.placeholder.com/60?text=Opt';
-                                        const productCodeDisplay = option.product_code ? `<div class="sub-option-code">${option.product_code}</div>` : '';
-                                        const recQty = parseInt(option.recommended_quantity) || 0;
+                        categoriesInStep.forEach(category => {
+                            if (category.options && category.options.length > 0) {
+                                html += `<div class="option-category" data-category-step="${step}" data-category-name="${category.name}">`;
+                                html += `<div class="category-title">${category.name}</div>${category.description ? `<div class="category-description">${category.description}</div>` : ''}<div class="sub-options">`;
 
-                                        const noteHtml = option.note ? `<div class="sub-option-note"><i class="info-icon">ℹ</i> ${option.note}</div>` : '';
+                                category.options.forEach(option => {
+                                    const priceKey = `price_${currentCurrency.toLowerCase()}`;
+                                    const currentPrice = option[priceKey] || option.price_usd;
+                                    const symbol = currencySymbols[currentCurrency];
+                                    const inBucket = bucket.some(item => item.optionId === option.id);
+                                    const imageUrl = option.image_url ? option.image_url : 'https://via.placeholder.com/60?text=Opt';
+                                    const productCodeDisplay = option.product_code ? `<div class="sub-option-code">${option.product_code}</div>` : '';
+                                    const recQty = parseInt(option.recommended_quantity) || 0;
 
-                                        html += `<div class="sub-option" data-option-id="${option.id}" data-option-name="${option.name}">
+                                    const noteHtml = option.note ? `<div class="sub-option-note"><i class="info-icon">ℹ</i> ${option.note}</div>` : '';
+
+                                    html += `<div class="sub-option" data-option-id="${option.id}" data-option-name="${option.name}">
                                                 <div class="sub-option-info">
                                                     <div class="sub-option-image-container" onclick="openLightbox('${imageUrl}')"><img src="${imageUrl}" alt="${option.name}" class="sub-option-image"></div>
                                                     <div>
@@ -1116,114 +1118,119 @@ function loadStateFromLocalStorage() {
                                                 <div class="sub-option-price">${symbol}${currentPrice.toFixed(2)}</div>
                                                 <div class="sub-option-controls">`;
 
-                                        // --- 1. MOTORS ---
-                                        if (step === 1 && category.name.toLowerCase().includes('motor')) {
-                                            const isStepper = option.name.toLowerCase().includes('stepper');
-                                            const isMotorisedRail = isYes(productData.powered_rail);
-                                            if (isMotorisedRail) {
-                                                if (isStepper) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                                else { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                            } else {
-                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                            }
-                                        }
-                                        // --- 2. DOLLY (Removed Logic - Standard Select) ---
-                                        else if (step === 1 && category.name.toLowerCase().includes('dolly')) {
+                                    // --- 1. MOTORS ---
+                                    if (step === 1 && category.name.toLowerCase().includes('motor')) {
+                                        const isStepper = option.name.toLowerCase().includes('stepper');
+                                        const isMotorisedRail = isYes(productData.powered_rail);
+                                        if (isMotorisedRail) {
+                                            if (isStepper) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                            else { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                        } else {
                                             html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
                                         }
-                                        // --- 3. POWER SUPPLY ---
-                                        else if (step === 1 && category.name.toLowerCase().includes('power')) {
-                                            const powerOpt = productData.power_option;
-                                            const name = option.name.toLowerCase();
-                                            const isPSU = name.includes('psu320e');
-                                            const isVMount = name.includes('v-mount') && name.includes('ppu');
-                                            const isBMount = name.includes('b-mount') && name.includes('ppu');
-
-                                            if (powerOpt === 'PSU' && isPSU) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                            else if (powerOpt === 'Battery PPU' && (isVMount || isBMount)) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                            else if ((powerOpt === 'PSU' && (isVMount || isBMount)) || (powerOpt === 'Battery PPU' && isPSU) || (powerOpt === 'None' && (isPSU || isVMount || isBMount))) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                            else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
-                                        }
-                                        // --- 4. BRACKETS ---
-                                        else if (step === 1 && category.name.toLowerCase().includes('bracket')) {
-                                            const isMotorisedRail = isYes(productData.powered_rail);
-                                            const isPneumatic = option.name.toLowerCase().includes('pneumatic');
-                                            const isStandard = option.name.toLowerCase().includes('standard');
-                                            if (isMotorisedRail) {
-                                                if (isPneumatic) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
-                                                else if (isStandard) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
-                                                else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
-                                            } else {
-                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                            }
-                                        }
-                                        // --- 5. CABLE MANAGEMENT & STEP 2 CHECKBOXES ---
-                                        else if ((step === 1 && category.name.toLowerCase().includes('cable management')) || step === 2) {
-                                            const isChecked = inBucket ? 'checked' : '';
-                                            html += `<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-primary);"><input type="checkbox" onchange="handleCheckboxSelection(this, ${option.id})" ${isChecked} style="width: 20px; height: 20px; accent-color: var(--color-success);"> Select</label>`;
-                                        }
-                                        // --- 6. DEFAULT ---
-                                        else if (step !== 1) {
-                                            const isManagedSoftwareItem = 
-                                                option.name.toLowerCase().includes('slideye 2.0 software') || 
-                                                option.name.toLowerCase().includes('ptz license code') ||
-                                                option.name.toLowerCase().includes('dragonframe license code');
-
-                                            const slideyeChecked = softwareState['Slideye 2.0 Software'];
-                                            const dragonframeChecked = softwareState['Dragonframe Compatibility'];
-                                            
-                                            let isLocked = false;
-                                            if (isManagedSoftwareItem && (slideyeChecked || dragonframeChecked)) {
-                                                if (option.name.toLowerCase().includes('dragonframe') && !dragonframeChecked) {
-                                                    isLocked = false;
-                                                } else {
-                                                    isLocked = true;
-                                                }
-                                            }
-
-                                            if (isLocked) {
-                                                html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`;
-                                            } else {
-                                                html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
-                                            }
-                                        } else {
-                                            if (recQty > 0) { html += `<div class="recommended-qty-badge"><span>Rec.</span>${recQty}</div>`; }
-                                            let qtyOptions = '';
-                                            // Standard Item Quantity Logic (0 to 10)
-                                            let qty = inBucket ? bucket.find(b=>b.optionId===option.id).quantity : 0;
-                                            for (let i = 0; i <= 10; i++) { qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i}</option>`; }
-                                            
-                                            if (inBucket) html += `<select class="quantity-select">${qtyOptions}</select><button class="remove-btn">Remove</button>`;
-                                            else html += `<select class="quantity-select">${qtyOptions}</select><button class="add-btn">Add</button>`;
-                                        }
-                                        html += `</div></div>`;
-                                    });
-                                    html += `</div></div>`;
-
-                                    // ADDED: Specific Logic to Move Rail Totals Here
-                                    if (step === 1 && category.name.toLowerCase().includes('rail')) {
-                                        html += `<div class="rail-totals-main-display rail-totals-main"></div>`;
                                     }
-                                }
-                            });
-                        }
-                    }
-                } else { html = '<div class="error">No configuration options available for this product.</div>'; }
+                                    // --- 2. DOLLY (Removed Logic - Standard Select) ---
+                                    else if (step === 1 && category.name.toLowerCase().includes('dolly')) {
+                                        html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                    }
+                                    // --- 3. POWER SUPPLY ---
+                                    else if (step === 1 && category.name.toLowerCase().includes('power')) {
+                                        const powerOpt = productData.power_option;
+                                        const name = option.name.toLowerCase();
+                                        const isPSU = name.includes('psu320e');
+                                        const isVMount = name.includes('v-mount') && name.includes('ppu');
+                                        const isBMount = name.includes('b-mount') && name.includes('ppu');
 
-                document.getElementById('productContent').innerHTML = html;
-                updateAllSubOptionDisplays();
-                addEventListenersToOptions();
-                updateMainRailTotals();
-            }
+                                        if (powerOpt === 'PSU' && isPSU) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                        else if (powerOpt === 'Battery PPU' && (isVMount || isBMount)) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                        else if ((powerOpt === 'PSU' && (isVMount || isBMount)) || (powerOpt === 'Battery PPU' && isPSU) || (powerOpt === 'None' && (isPSU || isVMount || isBMount))) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                        else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
+                                    }
+                                    // --- 4. BRACKETS ---
+                                    else if (step === 1 && category.name.toLowerCase().includes('bracket')) {
+                                        const isMotorisedRail = isYes(productData.powered_rail);
+                                        const isPneumatic = option.name.toLowerCase().includes('pneumatic');
+                                        const isStandard = option.name.toLowerCase().includes('standard');
+                                        if (isMotorisedRail) {
+                                            if (isPneumatic) { html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`; }
+                                            else if (isStandard) { html += `<select class="yes-no-select" disabled><option value="no" selected>No</option></select>`; }
+                                            else { html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`; }
+                                        } else {
+                                            html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                        }
+                                    }
+                                    // --- 5. CABLE MANAGEMENT & STEP 2 CHECKBOXES ---
+                                    else if ((step === 1 && category.name.toLowerCase().includes('cable management')) || step === 2) {
+                                        const isChecked = inBucket ? 'checked' : '';
+                                        html += `<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; color: var(--color-primary);"><input type="checkbox" onchange="handleCheckboxSelection(this, ${option.id})" ${isChecked} style="width: 20px; height: 20px; accent-color: var(--color-success);"> Select</label>`;
+                                    }
+                                    // --- 6. DEFAULT ---
+                                    else if (step !== 1) {
+                                        const isManagedSoftwareItem =
+                                            option.name.toLowerCase().includes('slideye 2.0 software') ||
+                                            option.name.toLowerCase().includes('ptz license code') ||
+                                            option.name.toLowerCase().includes('dragonframe license code');
+
+                                        const slideyeChecked = softwareState['Slideye 2.0 Software'];
+                                        const dragonframeChecked = softwareState['Dragonframe Compatibility'];
+
+                                        let isLocked = false;
+                                        if (isManagedSoftwareItem && (slideyeChecked || dragonframeChecked)) {
+                                            if (option.name.toLowerCase().includes('dragonframe') && !dragonframeChecked) {
+                                                isLocked = false;
+                                            } else {
+                                                isLocked = true;
+                                            }
+                                        }
+
+                                        if (isLocked) {
+                                            html += `<select class="yes-no-select" disabled><option value="yes" selected>Yes</option></select>`;
+                                        } else {
+                                            html += `<select class="yes-no-select" onchange="handleYesNoSelection(this, ${option.id})"><option value="no" ${!inBucket ? 'selected' : ''}>No</option><option value="yes" ${inBucket ? 'selected' : ''}>Yes</option></select>`;
+                                        }
+                                    } else {
+                                        if (recQty > 0) { html += `<div class="recommended-qty-badge"><span>Rec.</span>${recQty}</div>`; }
+                                        let qtyOptions = '';
+                                        // Standard Item Quantity Logic (0 to 10)
+                                        let qty = inBucket ? bucket.find(b => b.optionId === option.id).quantity : 0;
+                                        for (let i = 0; i <= 10; i++) { qtyOptions += `<option value="${i}" ${i === qty ? 'selected' : ''}>${i}</option>`; }
+
+                                        if (inBucket) html += `<select class="quantity-select">${qtyOptions}</select><button class="remove-btn">Remove</button>`;
+                                        else html += `<select class="quantity-select">${qtyOptions}</select><button class="add-btn">Add</button>`;
+                                    }
+                                    html += `</div></div>`;
+                                });
+                                html += `</div></div>`;
+
+                                // ADDED: Specific Logic to Move Rail Totals Here
+                                // Fixed: Added !railTotalsRendered to prevent duplicates
+                                if (step === 1 && category.name.toLowerCase().includes('rail') && !railTotalsRendered) {
+                                    html += `<div class="rail-totals-main-display rail-totals-main"></div>`;
+                                    railTotalsRendered = true;
+                                }
+                            }
+                        });
+                    }
+                }
+            } else { html = '<div class="error">No configuration options available for this product.</div>'; }
+
+            document.getElementById('productContent').innerHTML = html;
+            updateAllSubOptionDisplays();
+            addEventListenersToOptions();
+            updateMainRailTotals();
+        }
 
         // --- RULES ENFORCEMENT ---
 
-    function enforceConfigurationRules() {
+       function enforceConfigurationRules() {
             if (!productData || !productData.categories) return;
 
+            // --- 1. PREPARE DATA ---
             const isMotorisedRail = (val) => val && (val.toString().toLowerCase() === 'yes' || val == '1');
             const motorized = isMotorisedRail(productData.powered_rail);
-
+            const slideyeChecked = softwareState['Slideye 2.0 Software'];
+            const dragonframeChecked = softwareState['Dragonframe Compatibility'];
+            
             const lensMapping = {
                 'TILTA Nucleus-M kit': 'Tilta Nucleus-M Lens Control Kit',
                 'PD Movies LCS': 'PDMovie Lens Control Cable',
@@ -1232,134 +1239,171 @@ function loadStateFromLocalStorage() {
                 'CANON LCS': 'Canon Lens Control Cable'
             };
 
-            const slideyeChecked = softwareState['Slideye 2.0 Software'];
-            const dragonframeChecked = softwareState['Dragonframe Compatibility'];
+            // IDs for Dolly Logic
+            let standardDollyId = null;
+            let extendedDollyId = null;
 
-            // 1. Calculate Total Rail Length for Logic Checking
+            // Find specific Option IDs for Dollies
+            productData.categories.forEach(cat => {
+                cat.options.forEach(opt => {
+                    const n = opt.name.toLowerCase();
+                    if (n.includes('atlas') && n.includes('extended dolly')) extendedDollyId = opt.id;
+                    if (n.includes('atlas') && n.includes('rail dolly') && !n.includes('extended')) standardDollyId = opt.id;
+                });
+            });
+
+            // --- 2. CALCULATE RAIL LENGTH ---
             let totalRailLength = 0;
             bucket.forEach(item => {
                 const opt = findOptionById(item.optionId);
                 if (opt) {
                     const name = opt.name.toLowerCase();
-                    // Identify Rails (exclude dollies/cables)
                     if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable') && !name.includes('bracket')) {
                         const match = name.match(/(\d+(\.\d+)?)\s*m/);
-                        if (match) {
-                            totalRailLength += parseFloat(match[1]) * item.quantity;
-                        }
+                        if (match) totalRailLength += parseFloat(match[1]) * item.quantity;
                     }
                 }
             });
 
+            // --- 3. APPLY DOLLY RULES (STRICT SWAP) ---
+            
+            // A. CASE: Length > 6m -> Force Extended, Remove Standard
+            if (totalRailLength > 6) {
+                // Ensure Extended is in bucket
+                if (extendedDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === extendedDollyId);
+                    if (idx === -1) bucket.push({ optionId: extendedDollyId, quantity: 1 });
+                }
+                // Ensure Standard is REMOVED
+                if (standardDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === standardDollyId);
+                    if (idx > -1) bucket.splice(idx, 1);
+                }
+            } 
+            // B. CASE: Length > 0m but <= 6m -> Force Standard, Remove Extended
+            else if (totalRailLength > 0) {
+                // Ensure Standard is in bucket
+                if (standardDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === standardDollyId);
+                    if (idx === -1) bucket.push({ optionId: standardDollyId, quantity: 1 });
+                }
+                // Ensure Extended is REMOVED
+                if (extendedDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === extendedDollyId);
+                    if (idx > -1) bucket.splice(idx, 1);
+                }
+            }
+            // C. CASE: No Rail -> Remove Both
+            else {
+                if (standardDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === standardDollyId);
+                    if (idx > -1) bucket.splice(idx, 1);
+                }
+                if (extendedDollyId) {
+                    const idx = bucket.findIndex(b => b.optionId === extendedDollyId);
+                    if (idx > -1) bucket.splice(idx, 1);
+                }
+            }
+
+            // --- 4. APPLY OTHER RULES ---
             productData.categories.forEach(cat => {
                 cat.options.forEach(opt => {
                     const nameLower = opt.name.toLowerCase();
-                    const inBucketIndex = bucket.findIndex(b => b.optionId === opt.id);
+                    const idx = bucket.findIndex(b => b.optionId === opt.id);
 
-                    // --- RAIL LENGTH LOGIC (NEW) ---
-                    // If Length > 6m, Auto-Add "Atlas Rail Extended Dolly"
-                    if (totalRailLength > 6) {
-                        if (nameLower.includes('atlas') && nameLower.includes('extended dolly')) {
-                            // If not in bucket, add it
-                            if (inBucketIndex === -1) {
-                                bucket.push({ optionId: opt.id, quantity: 1 });
-                            }
-                        }
-                    }
-
-                    // --- LENS CONTROL LOGIC ---
+                    // Lens Control
                     for (const [ctrlKey, targetPhrase] of Object.entries(lensMapping)) {
                         if (nameLower.includes(targetPhrase.toLowerCase())) {
                             if (ctrlKey === 'TITLA LCS' && nameLower.includes('kit')) continue; 
                             if (ctrlKey === 'TILTA Nucleus-M kit' && !nameLower.includes('kit')) continue;
 
                             if (lensControlState[ctrlKey]) {
-                                if (inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                                if (idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
                             } else {
-                                if (inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
+                                if (idx > -1) bucket.splice(idx, 1);
                             }
                         }
                     }
 
-                    // --- SOFTWARE OPTION LOGIC ---
+                    // Software
                     if (nameLower.includes('slideye 2.0 software')) {
-                        if (slideyeChecked || dragonframeChecked) {
-                             if (inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                        } else {
-                             if (inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
-                        }
+                        if ((slideyeChecked || dragonframeChecked) && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                        if (!(slideyeChecked || dragonframeChecked) && idx > -1) bucket.splice(idx, 1);
                     }
                     if (nameLower.includes('ptz license code')) {
-                        if (slideyeChecked || dragonframeChecked) {
-                             if (inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                        } else {
-                             if (inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
-                        }
+                        if ((slideyeChecked || dragonframeChecked) && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                        if (!(slideyeChecked || dragonframeChecked) && idx > -1) bucket.splice(idx, 1);
                     }
                     if (nameLower.includes('dragonframe license code')) {
-                        if (dragonframeChecked) {
-                             if (inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                        } else {
-                             if (inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
-                        }
+                        if (dragonframeChecked && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                        if (!dragonframeChecked && idx > -1) bucket.splice(idx, 1);
                     }
 
-                    // --- MOTOR LOGIC ---
+                    // Motor
                     if (cat.name.toLowerCase().includes('motor')) {
                         const isServo = nameLower.includes('servo');
                         const isStepper = nameLower.includes('stepper');
                         if (motorized) {
-                            if (isServo && inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                            else if (isStepper && inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
+                            if (isServo && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                            if (isStepper && idx > -1) bucket.splice(idx, 1);
                         } else {
-                            if (inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
+                            if (idx > -1) bucket.splice(idx, 1);
                         }
                     }
-                    // --- POWER LOGIC ---
-                    if (cat.name.toLowerCase().includes('power')) {
-                        const isPSU = nameLower.includes('psu320e');
-                        const isVMount = nameLower.includes('v-mount') && nameLower.includes('ppu');
-                        const isBMount = nameLower.includes('b-mount') && nameLower.includes('ppu');
-                        const selectedPowerOption = productData.power_option;
 
-                        if (selectedPowerOption === 'PSU') {
-                            if (isPSU && inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                            else if ((isVMount || isBMount) && inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
-                        } else if (selectedPowerOption === 'Battery PPU') {
-                            if ((isVMount || isBMount) && inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
-                            else if (isPSU && inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
-                        } else if (selectedPowerOption === 'None') {
-                             if ((isPSU || isVMount || isBMount) && inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
+                    // Power
+                    const pOpt = productData.power_option;
+                    if (cat.name.toLowerCase().includes('power')) {
+                        if (pOpt === 'PSU') {
+                            if (nameLower.includes('psu320e') && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                            if (nameLower.includes('ppu') && idx > -1) bucket.splice(idx, 1);
+                        } else if (pOpt === 'Battery PPU') {
+                            if (nameLower.includes('ppu') && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                            if (nameLower.includes('psu320e') && idx > -1) bucket.splice(idx, 1);
+                        } else if (pOpt === 'None') {
+                            if ((nameLower.includes('psu320e') || nameLower.includes('ppu')) && idx > -1) bucket.splice(idx, 1);
                         }
                     }
-                    // --- BRACKET LOGIC ---
+
+                    // Bracket
                     if (cat.name.toLowerCase().includes('bracket')) {
                         const isPneumatic = nameLower.includes('pneumatic');
                         if (motorized) {
-                            if (isPneumatic && inBucketIndex === -1) bucket.push({ optionId: opt.id, quantity: 1 });
+                            if (isPneumatic && idx === -1) bucket.push({ optionId: opt.id, quantity: 1 });
                         } else {
-                            if (isPneumatic && inBucketIndex > -1) bucket.splice(inBucketIndex, 1);
+                            if (isPneumatic && idx > -1) bucket.splice(idx, 1);
                         }
                     }
                 });
             });
         }
-
         // --- UTILS ---
 
- function addEventListenersToOptions() {
+  function addEventListenersToOptions() {
             // 1. Handle Add/Remove Buttons
             document.querySelectorAll('.add-btn, .remove-btn').forEach(btn => {
                 btn.addEventListener('click', e => {
                     const div = e.target.closest('.sub-option');
                     const id = parseInt(div.dataset.optionId);
-                    const qty = parseInt(div.querySelector('.quantity-select').value);
+                    
+                    let qty = parseInt(div.querySelector('.quantity-select').value);
+                    if (qty === 0) qty = 1;
+
                     const idx = bucket.findIndex(b => b.optionId === id);
                     
-                    if (idx > -1) bucket.splice(idx, 1); 
-                    else bucket.push({optionId: id, quantity: qty});
+                    if (idx > -1) {
+                        bucket.splice(idx, 1); 
+                    } else {
+                        bucket.push({optionId: id, quantity: qty});
+                    }
                     
-                    updateBucketDisplay(); renderProduct(); saveStateToLocalStorage(); updateMainRailTotals();
+                    // --- CRITICAL FIX: Run Rules BEFORE updating UI ---
+                    enforceConfigurationRules(); 
+                    
+                    updateBucketDisplay(); 
+                    saveStateToLocalStorage(); 
+                    updateMainRailTotals();
+                    renderProduct(); 
                 });
             });
 
@@ -1369,27 +1413,25 @@ function loadStateFromLocalStorage() {
                     const div = e.target.closest('.sub-option');
                     const id = parseInt(div.dataset.optionId);
                     const qty = parseInt(e.target.value);
-                    const name = div.querySelector('.sub-option-name').innerText.toLowerCase();
+                    const idx = bucket.findIndex(b => b.optionId === id);
 
-                    // LIVE LOGIC: If it's a Rail, auto-update the bucket immediately
-                    // This forces the "Total Rail Length" to update instantly
-                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('cable')) {
-                        const idx = bucket.findIndex(b => b.optionId === id);
-                        if (idx > -1) {
-                            bucket[idx].quantity = qty;
-                        } else {
-                            bucket.push({optionId: id, quantity: qty});
-                        }
-                        // Refresh everything immediately
-                        updateBucketDisplay(); saveStateToLocalStorage(); updateMainRailTotals(); renderProduct();
+                    // Update the Bucket immediately
+                    if (qty === 0) {
+                        if (idx > -1) bucket.splice(idx, 1);
                     } else {
-                        // For non-rail items, just update the bucket if it's already added
-                        const item = bucket.find(b => b.optionId === id);
-                        if (item) {
-                            item.quantity = qty;
-                            updateBucketDisplay(); saveStateToLocalStorage();
-                        }
+                        if (idx > -1) bucket[idx].quantity = qty;
+                        else bucket.push({optionId: id, quantity: qty});
                     }
+                    
+                    // --- CRITICAL FIX: Run Rules BEFORE updating UI ---
+                    // This forces the Dolly Swap to happen in the data NOW
+                    enforceConfigurationRules(); 
+
+                    // Now update the UI with the new data
+                    updateBucketDisplay(); 
+                    saveStateToLocalStorage(); 
+                    updateMainRailTotals(); 
+                    renderProduct(); 
                 });
             });
         }
@@ -1411,65 +1453,8 @@ function loadStateFromLocalStorage() {
             updateBucketDisplay();
             saveStateToLocalStorage();
         }
-function updateMainRailTotals() {
-            const displayContainers = document.querySelectorAll('.rail-totals-main-display');
-            if (displayContainers.length === 0) return;
 
-            let totalRailLength = 0;
-
-            bucket.forEach(item => {
-                const option = findOptionById(item.optionId);
-                if (option) {
-                    const name = option.name.toLowerCase();
-                    // STRICT CHECK: Atlas Rail only
-                    if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable')) {
-                        const match = name.match(/(\d+(\.\d+)?)\s*m/);
-                        if (match) {
-                            totalRailLength += parseFloat(match[1]) * item.quantity;
-                        }
-                    }
-                }
-            });
-
-            // Motorised Belt Logic
-            let totalBeltLength = 0;
-            const isMotorized = productData.powered_rail && (productData.powered_rail.toString().toLowerCase() === 'yes' || productData.powered_rail == '1');
-            
-            if (isMotorized && totalRailLength > 0) {
-                totalBeltLength = totalRailLength + 0.2;
-            }
-
-            displayContainers.forEach(container => {
-                container.innerHTML = `
-                    <div class="rail-total-item"><span class="label">Total Rail Length:</span><span class="value">${totalRailLength.toFixed(1)} Meters</span></div>
-                    <div class="rail-total-item"><span class="label">Total ATLAS Rail Teethbelt:</span><span class="value">${totalBeltLength.toFixed(1)} Meters</span></div>`;
-            });
-        }
-
-function addToBucket(button) {
-            const subOption = button.closest('.sub-option');
-            const optionId = parseInt(subOption.dataset.optionId);
-            const quantity = parseInt(subOption.querySelector('.quantity-select').value);
-            
-            bucket.push({ optionId, quantity });
-            
-            updateBucketDisplay(); 
-            updateSubOptionDisplay(optionId, true); 
-            saveStateToLocalStorage();
-            updateMainRailTotals(); // <--- THIS WAS MISSING
-        }
-
-        function removeFromBucket(index) {
-            const removedItem = bucket.splice(index, 1)[0];
-            
-            updateBucketDisplay();
-            if (removedItem) { updateSubOptionDisplay(removedItem.optionId, false); }
-            saveStateToLocalStorage();
-            updateMainRailTotals(); // <--- THIS WAS MISSING
-        }
-
-        // Also update the listener for when quantity changes
-function updateMainRailTotals() {
+        function updateMainRailTotals() {
             const displayContainers = document.querySelectorAll('.rail-totals-main-display');
             if (displayContainers.length === 0) return;
 
@@ -1482,7 +1467,7 @@ function updateMainRailTotals() {
                     const name = option.name.toLowerCase();
                     // STRICT CHECK: Must be "Atlas Rail" and NOT a dolly, cable, or adapter
                     if (name.includes('atlas rail') && !name.includes('dolly') && !name.includes('adapter') && !name.includes('cable') && !name.includes('bracket')) {
-                        
+
                         // Extract number before 'm' (e.g. 0.8, 1.5, 2)
                         const match = name.match(/(\d+(\.\d+)?)\s*m/);
                         if (match) {
@@ -1495,7 +1480,7 @@ function updateMainRailTotals() {
 
             // 2. Calculate Teethbelt Logic
             let totalBeltLength = 0;
-            
+
             // Check if Motorised Rail is set to Yes (handles "Yes", "1", or true)
             const isMotorized = productData.powered_rail && (productData.powered_rail.toString().toLowerCase() === 'yes' || productData.powered_rail == '1');
 
@@ -1521,11 +1506,25 @@ function updateMainRailTotals() {
             });
         }
 
+        function addToBucket(button) {
+            const subOption = button.closest('.sub-option');
+            const optionId = parseInt(subOption.dataset.optionId);
+            const quantity = parseInt(subOption.querySelector('.quantity-select').value);
+
+            bucket.push({ optionId, quantity });
+
+            updateBucketDisplay();
+            updateSubOptionDisplay(optionId, true);
+            saveStateToLocalStorage();
+            updateMainRailTotals(); 
+        }
+
         function removeFromBucket(index) {
             const removedItem = bucket.splice(index, 1)[0];
             updateBucketDisplay();
             if (removedItem) { updateSubOptionDisplay(removedItem.optionId, false); }
             saveStateToLocalStorage();
+            updateMainRailTotals(); 
         }
 
         function findOptionById(optionId) { if (!productData || !productData.categories) return null; for (const category of productData.categories) { const found = category.options.find(opt => opt.id === optionId); if (found) return found; } return null; }
